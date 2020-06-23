@@ -5,7 +5,7 @@ import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hrapp.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hr.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
