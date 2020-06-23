@@ -1,4 +1,4 @@
-# hrapp
+# hr
 This repository is used for the backend of an hr application developed with Django.
 
 ### Features

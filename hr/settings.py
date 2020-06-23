@@ -67,7 +67,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'hrapp.urls'
+ROOT_URLCONF = 'hr.urls'
 
 TEMPLATES = [
     {
@@ -85,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hrapp.wsgi.application'
+WSGI_APPLICATION = 'hr.wsgi.application'
 
 
 # Database
@@ -94,9 +94,9 @@ WSGI_APPLICATION = 'hrapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'name': 'hrapp',
-        'user': 'mugna',
-        'password': 'mugna_pass',
+        'name': 'mugna_hr',
+        'user': 'mugna_hr',
+        'password': 'mugna_hr',
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -150,7 +150,6 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
