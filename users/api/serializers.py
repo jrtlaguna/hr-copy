@@ -5,41 +5,46 @@ from users.models import (
     User,
     EmergencyContact,
     WorkHistory,
-    Education
+    Education,
 )
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "first_name",
+            "middle_name",
+            "last_name",
+            "username",
+            "email",
+        )
+
+
+class EmergencyContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmergencyContact
+        fields = "__all__"
+
+
+class WorkHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkHistory
+        fields = "__all__"
+
+
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = "__all__"
+
+
 class EmployeeSerializer(serializers.ModelSerializer):
-
-    email = serializers.EmailField(source='user.email')
-    first_name = serializers.CharField(source='user.first_name')
-    middle_name = serializers.CharField(source='user.middle_name')
-    last_name = serializers.CharField(source='user.last_name')
-
+    user = UserSerializer()
+    work_history = WorkHistorySerializer(many=True,)
+    emergency_contact = EmergencyContactSerializer(many=True,)
+    education = EducationSerializer(many=True,)
 
     class Meta:
         model = Employee
-        exclude = [
-            'id',
-            'user',
-        ]
-
-    # def validate_email(self, email):
-
-class EmergencyContactSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = EmergencyContact
-        exclude = ['id',]
-
-class WorkHistorySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = WorkHistory
-        exclude = ['id',]
-
-class EducationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Education
-        exclude = ['id',]
+        fields = "__all__"
