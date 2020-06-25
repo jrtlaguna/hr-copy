@@ -48,11 +48,12 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_auth'
+    'rest_auth',
+    'django_filters'
 ]
 
 LOCAL_APPS = [
-    # 'users'
+    'users'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + LOCAL_APPS
@@ -145,6 +146,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# AUTHENTICATION
+AUTH_USER_MODEL = 'users.User'
 
 #REST_FRAMEWORK
 
