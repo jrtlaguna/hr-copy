@@ -21,11 +21,11 @@ urlpatterns = [
     path(r'api/', include([
         path(
             r'auth/',
-            include(('rest_auth.urls'))
+            include(('rest_auth.urls')),
         ),
         path(
             r'users/',
-            include(('users.api.urls'))
-        )
-    ]))
+            include(('users.api.urls')),
+        ),
+    ])),
 ]

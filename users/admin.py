@@ -1,13 +1,13 @@
 from django.contrib import admin
 from .models import (
     Employee,
-    Education, 
+    Education,
     EmergencyContact,
     WorkHistory,
-    User
-    )
+    User,
+)
 
-# Register your models here.
+
 admin.site.register(User)
 admin.site.register(Employee)
 admin.site.register(Education)
