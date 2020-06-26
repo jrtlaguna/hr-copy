@@ -8,58 +8,119 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Education',
+            name="Education",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('school', models.CharField(max_length=100, verbose_name='School')),
-                ('level', models.CharField(max_length=100, verbose_name='Level')),
-                ('degree', models.CharField(max_length=100, verbose_name='Degree')),
-                ('year_graduated', models.CharField(max_length=50, verbose_name='Year Graduated')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("school", models.CharField(max_length=100, verbose_name="School")),
+                ("level", models.CharField(max_length=100, verbose_name="Level")),
+                ("degree", models.CharField(max_length=100, verbose_name="Degree")),
+                (
+                    "year_graduated",
+                    models.CharField(max_length=50, verbose_name="Year Graduated"),
+                ),
+            ],
+            options={"verbose_name": "Education", "verbose_name_plural": "Education",},
+        ),
+        migrations.CreateModel(
+            name="EmergencyContact",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="Name")),
+                (
+                    "contact_number",
+                    models.CharField(max_length=100, verbose_name="Contact No."),
+                ),
             ],
             options={
-                'verbose_name': 'Education',
-                'verbose_name_plural': 'Education',
+                "verbose_name": "Emercency Contact",
+                "verbose_name_plural": "Emergency Contacts",
             },
         ),
         migrations.CreateModel(
-            name='EmergencyContact',
+            name="Employee",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('contact_number', models.CharField(max_length=100, verbose_name='Contact No.')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "gender",
+                    models.CharField(
+                        choices=[
+                            ("male", "Male"),
+                            ("female", "Female"),
+                            ("other", "Other"),
+                        ],
+                        max_length=50,
+                        verbose_name="Gender",
+                    ),
+                ),
+                ("date_of_birth", models.DateField(verbose_name="Date of Birth")),
+                ("date_started", models.DateField(verbose_name="Date Started")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Is active"),
+                ),
+                (
+                    "nickname",
+                    models.CharField(
+                        blank=True, max_length=100, null=True, verbose_name="Nickname"
+                    ),
+                ),
             ],
-            options={
-                'verbose_name': 'Emercency Contact',
-                'verbose_name_plural': 'Emergency Contacts',
-            },
         ),
         migrations.CreateModel(
-            name='Employee',
+            name="WorkHistory",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('gender', models.CharField(choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')], max_length=50, verbose_name='Gender')),
-                ('date_of_birth', models.DateField(verbose_name='Date of Birth')),
-                ('date_started', models.DateField(verbose_name='Date Started')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Is active')),
-                ('nickname', models.CharField(blank=True, max_length=100, null=True, verbose_name='Nickname')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='WorkHistory',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('company', models.CharField(max_length=100, verbose_name='Company')),
-                ('position', models.CharField(max_length=100, verbose_name='Position')),
-                ('employee', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='work_histories', to='employees.Employee', verbose_name='Work History')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("company", models.CharField(max_length=100, verbose_name="Company")),
+                ("position", models.CharField(max_length=100, verbose_name="Position")),
+                (
+                    "employee",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="work_histories",
+                        to="employees.Employee",
+                        verbose_name="Work History",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Work History',
-                'verbose_name_plural': 'Work History',
+                "verbose_name": "Work History",
+                "verbose_name_plural": "Work History",
             },
         ),
     ]

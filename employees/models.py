@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from core.models import OPTIONAL
 
+
 class Employee(models.Model):
 
     GENDER_CHOICES = (
@@ -19,7 +20,7 @@ class Employee(models.Model):
     )
 
     gender = models.CharField("Gender", choices=GENDER_CHOICES, max_length=50,)
-    date_of_birth = models.DateField("Date of Birth",  **OPTIONAL,)
+    date_of_birth = models.DateField("Date of Birth", **OPTIONAL,)
     date_started = models.DateField("Date Started", **OPTIONAL,)
     is_active = models.BooleanField("Is active", default=True,)
     nickname = models.CharField("Nickname", max_length=100, **OPTIONAL,)
