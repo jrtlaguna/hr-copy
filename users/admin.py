@@ -1,15 +1,17 @@
 from django.contrib import admin
-from .models import (
-    Employee,
-    Education,
-    EmergencyContact,
-    WorkHistory,
-    User,
-)
+
+from .models import User
 
 
-admin.site.register(User)
-admin.site.register(Employee)
-admin.site.register(Education)
-admin.site.register(WorkHistory)
-admin.site.register(EmergencyContact)
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        "email",
+        "first_name",
+        "last_name",
+    )
+    search_fields = (
+        "email",
+        "first_name",
+        "last_name",
+    )
