@@ -11,6 +11,7 @@ django-environ = "*"
 djangorestframework = "*"
 django-rest-auth = "*"
 psycopg2-binary = "*"
+django-restql = "*"
 
 [requires]
 python_version = "3.8"

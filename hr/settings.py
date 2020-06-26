@@ -46,13 +46,15 @@ INSTALLED_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "django_filters",
+    "django_restql",
+    "rest_auth",
     "rest_framework",
     "rest_framework.authtoken",
-    "rest_auth",
-    "django_filters",
 ]
 
 LOCAL_APPS = [
+    "employees",
     "users",
     ]
 
