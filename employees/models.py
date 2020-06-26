@@ -19,11 +19,11 @@ class Employee(models.Model):
         on_delete=models.CASCADE,
     )
 
-    gender = models.CharField("Gender", choices=GENDER_CHOICES, max_length=50,)
-    date_of_birth = models.DateField("Date of Birth", **OPTIONAL,)
-    date_started = models.DateField("Date Started", **OPTIONAL,)
-    is_active = models.BooleanField("Is active", default=True,)
-    nickname = models.CharField("Nickname", max_length=100, **OPTIONAL,)
+    gender = models.CharField(_("Gender"), choices=GENDER_CHOICES, max_length=50,)
+    date_of_birth = models.DateField(_("Date of Birth"), **OPTIONAL,)
+    date_started = models.DateField(_("Date Started"), **OPTIONAL,)
+    is_active = models.BooleanField(_("Is active"), default=True,)
+    nickname = models.CharField(_("Nickname"), max_length=100, **OPTIONAL,)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -31,8 +31,8 @@ class Employee(models.Model):
 
 class EmergencyContact(models.Model):
 
-    name = models.CharField("Name", max_length=100,)
-    contact_number = models.CharField("Contact No.", max_length=100,)
+    name = models.CharField(_("Name"), max_length=100,)
+    contact_number = models.CharField(_("Contact No."), max_length=100,)
     employee = models.ForeignKey(
         "employees.employee",
         verbose_name=_("Employee"),
@@ -49,10 +49,10 @@ class EmergencyContact(models.Model):
 
 
 class Education(models.Model):
-    school = models.CharField("School", max_length=100,)
-    level = models.CharField("Level", max_length=100,)
-    degree = models.CharField("Degree", max_length=100,)
-    year_graduated = models.CharField("Year Graduated", max_length=50,)
+    school = models.CharField(_("School"), max_length=100,)
+    level = models.CharField(_("Level"), max_length=100,)
+    degree = models.CharField(_("Degree"), max_length=100,)
+    year_graduated = models.CharField(_("Year Graduated"), max_length=50,)
 
     employee = models.ForeignKey(
         "employees.employee",
@@ -70,8 +70,8 @@ class Education(models.Model):
 
 
 class WorkHistory(models.Model):
-    company = models.CharField("Company", max_length=100,)
-    position = models.CharField("Position", max_length=100,)
+    company = models.CharField(_("Company"), max_length=100,)
+    position = models.CharField(_("Position"), max_length=100,)
     employee = models.ForeignKey(
         "employees.employee",
         verbose_name=_("Employee"),
