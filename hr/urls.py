@@ -17,15 +17,19 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path(r'api/', include([
+    path("admin/", admin.site.urls),
+    path(r"api/", include([
         path(
-            r'auth/',
-            include(('rest_auth.urls')),
+            r"auth/",
+            include(("rest_auth.urls")),
         ),
         path(
-            r'users/',
-            include(('users.api.urls')),
+            r"users/",
+            include(("users.api.urls")),
+        ),
+        path(
+            r"employees/",
+            include(("employees.api.urls")),
         ),
     ])),
 ]
