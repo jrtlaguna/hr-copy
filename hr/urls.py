@@ -23,8 +23,8 @@ urlpatterns = [
         include(
             [
                 path(r"auth/", include(("rest_auth.urls")),),
-                path(r"users/", include(("users.api.urls")),),
-                path(r"employees/", include(("employees.api.urls")),),
+                path(r"users/", include(("users.api.v1.urls")),),
+                path(r"employees/", include(("employees.api.v1.urls")),),
             ],
         ),
     ),
