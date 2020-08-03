@@ -8,6 +8,18 @@ from employees.models import (
 )
 
 
+class EducationInline(admin.TabularInline):
+    model = Education
+
+
+class EmergencyContactInline(admin.TabularInline):
+    model = EmergencyContact
+
+
+class WorkHistoryInline(admin.TabularInline):
+    model = WorkHistory
+
+
 @admin.register(Education)
 class EducationAdmin(admin.ModelAdmin):
     list_display = (
@@ -44,6 +56,11 @@ class EmergencyContactAdmin(admin.ModelAdmin):
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
+    inlines = [
+        EducationInline,
+        EmergencyContactInline,
+        WorkHistoryInline
+    ]
     list_display = (
         "nickname",
         "user",
@@ -57,6 +74,7 @@ class EmployeeAdmin(admin.ModelAdmin):
     search_fields = (
         "user__first_name",
         "user__last_name",
+        "user__email",
         "nickname",
     )
 

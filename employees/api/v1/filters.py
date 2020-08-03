@@ -8,7 +8,7 @@ from users.models import User
 
 
 class EmployeeFilter(FilterSet):
-    search = filters.CharFilter(method="_multi_search")
+    search = filters.CharFilter(method="_multi_search", label="name or email")
 
     def _multi_search(self, queryset, name, value):
         return queryset.filter(

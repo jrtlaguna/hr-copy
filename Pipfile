@@ -10,8 +10,9 @@ django = "*"
 django-environ = "*"
 djangorestframework = "*"
 django-rest-auth = "*"
-psycopg2-binary = "*"
 django-restql = "*"
+drf-writable-nested = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.8"

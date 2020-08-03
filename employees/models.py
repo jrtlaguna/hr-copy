@@ -21,6 +21,8 @@ class Employee(models.Model):
 
     gender = models.CharField(_("Gender"), choices=GENDER_CHOICES, max_length=50,)
     date_of_birth = models.DateField(_("Date of Birth"), **OPTIONAL,)
+    contact_number = models.CharField(_("Contact No."), max_length=100,)
+    address = models.TextField(_("Adress"),)
     date_started = models.DateField(_("Date Started"), **OPTIONAL,)
     is_active = models.BooleanField(_("Is active"), default=True,)
     nickname = models.CharField(_("Nickname"), max_length=100, **OPTIONAL,)
@@ -33,6 +35,7 @@ class EmergencyContact(models.Model):
 
     name = models.CharField(_("Name"), max_length=100,)
     contact_number = models.CharField(_("Contact No."), max_length=100,)
+    relation = models.CharField(_("Relation"), max_length=50, **OPTIONAL,)
     employee = models.ForeignKey(
         "employees.employee",
         verbose_name=_("Employee"),
@@ -72,6 +75,8 @@ class Education(models.Model):
 class WorkHistory(models.Model):
     company = models.CharField(_("Company"), max_length=100,)
     position = models.CharField(_("Position"), max_length=100,)
+    date_started = models.DateField(_("Date Started"), **OPTIONAL,)
+    date_ended = models.DateField(_("Date Ended"), **OPTIONAL,)
     employee = models.ForeignKey(
         "employees.employee",
         verbose_name=_("Employee"),
