@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 django = "*"
 django-environ = "*"
+django-extensions = "*"
 djangorestframework = "*"
 django-rest-auth = "*"
 django-restql = "*"

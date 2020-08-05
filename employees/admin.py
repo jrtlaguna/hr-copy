@@ -69,7 +69,7 @@ class EmployeeAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "gender",
-        "is_active",
+        "user__is_active",
     )
     search_fields = (
         "user__first_name",

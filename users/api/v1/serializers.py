@@ -13,4 +13,16 @@ class UserSerializer(UniqueFieldsMixin, serializers.ModelSerializer):
             "first_name",
             "last_name",
             "email",
+            "is_active"
+        ]
+
+class UserSerializerWithoutUsername(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "is_active"
         ]

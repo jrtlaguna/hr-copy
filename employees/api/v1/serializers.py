@@ -9,7 +9,7 @@ from employees.models import (
     Education,
 )
 from users.models import User
-from users.api.v1.serializers import UserSerializer
+from users.api.v1.serializers import UserSerializer, UserSerializerWithoutUsername
 
 
 class EmergencyContactSerializer(serializers.ModelSerializer):
@@ -41,3 +41,12 @@ class EmployeeSerializer(DynamicFieldsMixin, WritableNestedModelSerializer):
         fields = "__all__"
 
 
+class EmployeeUpdateSerializer(DynamicFieldsMixin, WritableNestedModelSerializer):
+    user = UserSerializerWithoutUsername()
+    work_histories = WorkHistorySerializer(many=True, required=False)
+    emergency_contacts = EmergencyContactSerializer(many=True, required=False)
+    educations = EducationSerializer(many=True, required=False)
+
+    class Meta:
+        model = Employee
+        fields = "__all__"

@@ -24,7 +24,6 @@ class Employee(models.Model):
     contact_number = models.CharField(_("Contact No."), max_length=100,)
     address = models.TextField(_("Adress"),)
     date_started = models.DateField(_("Date Started"), **OPTIONAL,)
-    is_active = models.BooleanField(_("Is active"), default=True,)
     nickname = models.CharField(_("Nickname"), max_length=100, **OPTIONAL,)
 
     def __str__(self):
