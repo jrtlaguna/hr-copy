@@ -6,7 +6,12 @@ from core.models import OPTIONAL
 
 
 class User(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True)
     middle_name = models.CharField("Middle Name", max_length=150, **OPTIONAL)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = _("User")

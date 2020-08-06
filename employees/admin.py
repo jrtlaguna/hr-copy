@@ -33,6 +33,8 @@ class EducationAdmin(admin.ModelAdmin):
         "degree",
         "year_graduated",
     )
+    list_select_related = ("employee",)
+    raw_id_fields = ("employee",)
     search_fields = (
         "employee__nickname",
         "school",
@@ -48,6 +50,12 @@ class EmergencyContactAdmin(admin.ModelAdmin):
         "name",
         "contact_number",
     )
+    list_select_related = (
+        "employee",
+        "name",
+        "contact_number",
+    )
+    raw_id_fields = ("employee",)
     search_fields = (
         "employee__nickname",
         "name",
@@ -56,11 +64,7 @@ class EmergencyContactAdmin(admin.ModelAdmin):
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    inlines = [
-        EducationInline,
-        EmergencyContactInline,
-        WorkHistoryInline
-    ]
+    inlines = [EducationInline, EmergencyContactInline, WorkHistoryInline]
     list_display = (
         "nickname",
         "user",
@@ -71,6 +75,8 @@ class EmployeeAdmin(admin.ModelAdmin):
         "gender",
         "user__is_active",
     )
+    list_select_related = ("user",)
+    raw_id_fields = ("user",)
     search_fields = (
         "user__first_name",
         "user__last_name",
@@ -86,7 +92,9 @@ class WorkHistoryAdmin(admin.ModelAdmin):
         "company",
         "position",
     )
+    list_select_related = ("employee",)
     list_filter = ("position",)
+    raw_id_fields = ("employee",)
     search_fields = (
         "employee",
         "company",

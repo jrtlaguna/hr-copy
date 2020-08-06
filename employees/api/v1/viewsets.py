@@ -14,7 +14,6 @@ from employees.models import (
 from employees.api.v1.serializers import (
     EducationSerializer,
     EmployeeSerializer,
-    EmployeeUpdateSerializer,
     EmergencyContactSerializer,
     WorkHistorySerializer,
 )
@@ -26,16 +25,8 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     filter_class = EmployeeFilter
     filter_backends = (filters.DjangoFilterBackend,)
 
-
-    def get_serializer_class(self):
-        serializer_class = self.serializer_class
-        if self.request.method == "PATCH" or self.request.method == "PUT":
-            serializer_class = EmployeeUpdateSerializer
-        
-        return serializer_class
-
     def destroy(self, request, *args, **kwargs):
-        
+
         instance = self.get_object()
         instance.user.is_active = False
         instance.user.save()
