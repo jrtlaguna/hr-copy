@@ -31,7 +31,7 @@ class EducationSerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(DynamicFieldsMixin, WritableNestedModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(partial=True)
     work_histories = WorkHistorySerializer(many=True, required=False)
     emergency_contacts = EmergencyContactSerializer(many=True, required=False)
     educations = EducationSerializer(many=True, required=False)

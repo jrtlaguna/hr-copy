@@ -6,10 +6,12 @@ from core.models import OPTIONAL
 
 class Employee(models.Model):
 
+    GENDER_MALE = "male"
+    GENDER_FEMALE = "female"
+
     GENDER_CHOICES = (
-        ("male", "Male"),
-        ("female", "Female"),
-        ("other", "Other"),
+        (GENDER_MALE, "Male"),
+        (GENDER_FEMALE, "Female"),
     )
 
     user = models.OneToOneField(
@@ -29,6 +31,10 @@ class Employee(models.Model):
     def __str__(self):
         return self.user.get_full_name()
 
+    class Meta:
+        verbose_name = _("Employee")
+        verbose_name_plural = _("Employees")
+
 
 class EmergencyContact(models.Model):
 
@@ -43,7 +49,7 @@ class EmergencyContact(models.Model):
     )
 
     class Meta:
-        verbose_name = _("Emercency Contact")
+        verbose_name = _("Emergency Contact")
         verbose_name_plural = _("Emergency Contacts")
 
     def __str__(self):
@@ -68,7 +74,7 @@ class Education(models.Model):
 
     class Meta:
         verbose_name = _("Education")
-        verbose_name_plural = _("Education")
+        verbose_name_plural = _("Educations")
 
 
 class WorkHistory(models.Model):
@@ -88,4 +94,4 @@ class WorkHistory(models.Model):
 
     class Meta:
         verbose_name = _("Work History")
-        verbose_name_plural = _("Work History")
+        verbose_name_plural = _("Work Histories")
