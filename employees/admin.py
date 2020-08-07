@@ -50,11 +50,7 @@ class EmergencyContactAdmin(admin.ModelAdmin):
         "name",
         "contact_number",
     )
-    list_select_related = (
-        "employee",
-        "name",
-        "contact_number",
-    )
+    list_select_related = ("employee",)
     raw_id_fields = ("employee",)
     search_fields = (
         "employee__nickname",

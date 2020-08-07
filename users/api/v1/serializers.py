@@ -18,20 +18,11 @@ class UserSerializer(UniqueFieldsMixin, serializers.ModelSerializer):
             "is_active",
         ]
 
-    def get_cleaned_data(self):
-        return {
-            "first_name": self.validated_data.get("first_name", ""),
-            "middle_name": self.validated_data.get("middle_name", ""),
-            "last_name": self.validated_data.get("last_name", ""),
-            "password1": self.validated_data.get("password1", ""),
-            "email": self.validated_data.get("email", ""),
-        }
-
     def create(self, validated_data):
         request = self.context.get("request")
         adapter = get_adapter()
         user = adapter.new_user(request)
-        self.cleaned_data = self.get_cleaned_data()
+        self.cleaned_data = self.validated_data
         self._validate_unique_fields(validated_data)
         adapter.save_user(request, user, self)
         setup_user_email(request, user, [])
