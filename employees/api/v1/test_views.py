@@ -117,7 +117,7 @@ class EmployeeViewsetTestCase(APITestCase):
         self.assertIn("testuser", response.json()[0]["user"].get("email"))
 
     def test_update_employee_unauthorized(self):
-        data = {"user": {"email": "newemail@gmail.com"}}
+        data = {"user": {"id": self.employee.user.id, "email": "newemail@gmail.com"}}
         self.client.force_authenticate(user=None)
         response = self.client.patch(
             reverse("employees-detail", kwargs={"pk": self.employee.id}),
