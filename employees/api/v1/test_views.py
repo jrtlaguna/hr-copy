@@ -117,7 +117,7 @@ class EmployeeViewsetTestCase(APITestCase):
         self.assertIn("testuser", response.json()[0]["user"].get("email"))
 
     def test_update_employee_unauthorized(self):
-        data = {"user": {"id": self.employee.user.id, "email": "newemail@gmail.com"}}
+        data = {"user": {"email": "newemail@gmail.com"}}
         self.client.force_authenticate(user=None)
         response = self.client.patch(
             reverse("employees-detail", kwargs={"pk": self.employee.id}),
@@ -125,6 +125,55 @@ class EmployeeViewsetTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_put_employee(self):
+        data = {
+            "user": {
+                "first_name": "Foo",
+                "middle_name": "K",
+                "last_name": "Bar",
+                "email": "foobar@gmail.com",
+            },
+            "work_histories": [
+                {
+                    "company": "Company A",
+                    "position": "Software Developer",
+                    "date_started": "2020-02-28",
+                    "date_ended": "2020-07-15",
+                }
+            ],
+            "emergency_contacts": [
+                {
+                    "name": "Foo Bar Sr",
+                    "contact_number": "+639021237654",
+                    "relation": "Father",
+                }
+            ],
+            "educations": [
+                {
+                    "school": "ABC University",
+                    "level": "Tertiary",
+                    "degree": "BS in Computer Science",
+                    "year_graduated": "2015",
+                }
+            ],
+            "gender": "male",
+            "date_of_birth": "1994-01-01",
+            "contact_number": "09224567895",
+            "address": "PH",
+            "date_started": "2020-07-07",
+            "nickname": "bartolomefoo",
+        }
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(
+            reverse("employees-detail", kwargs={"pk": self.employee.id}),
+            data=data,
+            format="json",
+        )
+        self.employee.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.employee.nickname, "bartolomefoo")
+        self.assertEqual(self.employee.user.middle_name, "K")
 
     def test_patch_employee(self):
         data = {"user": {"email": "newemail@gmail.com"}}
