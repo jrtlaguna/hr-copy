@@ -172,6 +172,7 @@ class EmployeeViewsetTestCase(APITestCase):
         )
         self.employee.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.employee.user.id, self.user.id)
         self.assertEqual(self.employee.nickname, "bartolomefoo")
         self.assertEqual(self.employee.user.middle_name, "K")
 
@@ -184,6 +185,7 @@ class EmployeeViewsetTestCase(APITestCase):
             format="json",
         )
         self.employee.refresh_from_db()
+        self.assertEqual(self.employee.user.id, self.user.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.employee.user.email, "newemail@gmail.com")
 
