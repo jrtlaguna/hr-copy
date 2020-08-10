@@ -7,9 +7,14 @@ verify_ssl = true
 
 [packages]
 django = "*"
+django-allauth = "*"
 django-environ = "*"
+django-extensions = "*"
 djangorestframework = "*"
 django-rest-auth = "*"
+django-restql = "*"
+drf-writable-nested = "*"
+factory-boy = "*"
 psycopg2-binary = "*"
 
 [requires]
