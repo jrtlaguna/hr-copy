@@ -9,25 +9,14 @@ from rest_framework.test import (
 )
 
 from employees.models import Employee
+from .factories import *
 
 
 class EmployeeViewsetTestCase(APITestCase):
     def setUp(self):
         User = get_user_model()
-        self.user = User.objects.create(
-            password="testuserpassword",
-            first_name="Foo",
-            last_name="Bar",
-            email="testuser@gmail.com",
-        )
-        self.employee = Employee.objects.create(
-            user=self.user,
-            date_of_birth="1994-01-01",
-            contact_number="09224567895",
-            address="PH",
-            date_started="2020-07-07",
-            nickname="roger",
-        )
+        self.user = UserFactory()
+        self.employee = EmployeeFactory(user=self.user)
 
     def test_employee_list_not_authenticated(self):
         self.client.force_authenticate(user=None)

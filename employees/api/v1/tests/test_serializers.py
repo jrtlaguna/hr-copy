@@ -7,56 +7,23 @@ from rest_framework.test import APIRequestFactory, APITestCase, force_authentica
 
 from employees.models import Education, EmergencyContact, Employee, WorkHistory
 
-from .serializers import (
+from employees.api.v1.serializers import (
     EducationSerializer,
     EmergencyContactSerializer,
     EmployeeSerializer,
     UserSerializer,
     WorkHistorySerializer,
 )
+from .factories import *
 
 
 class EmployeeSerializerTestCase(APITestCase):
     def setUp(self):
-        User = get_user_model()
-        self.user = User.objects.create(
-            password="testuserpassword",
-            first_name="Foo",
-            last_name="Bar",
-            email="testuser@gmail.com",
-        )
-
-        self.employee = Employee.objects.create(
-            user=self.user,
-            date_of_birth="1994-01-01",
-            contact_number="09224567895",
-            address="PH",
-            date_started="2020-07-07",
-            nickname="roger",
-        )
-
-        education = Education.objects.create(
-            employee=self.employee,
-            school="ABC University",
-            level="Tertiary",
-            degree="BSIT",
-            year_graduated="2015",
-        )
-
-        emergency_contact = EmergencyContact.objects.create(
-            name="Foo",
-            contact_number="09121239999",
-            relation="Father",
-            employee=self.employee,
-        )
-
-        work_history = WorkHistory.objects.create(
-            company="Company A",
-            position="Software Developer",
-            date_started="2018-07-07",
-            date_ended="2020-06-08",
-            employee=self.employee,
-        )
+        self.user = UserFactory()
+        self.employee = EmployeeFactory(user=self.user)
+        education = EducationFactory(employee=self.employee)
+        emergency_contact = EmergencyContact(employee=self.employee)
+        work_history = WorkHistoryFactory(employee=self.employee)
 
         self.client.force_authenticate(user=self.user)
         response = self.client.get(reverse("employees-list"))
