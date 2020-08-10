@@ -9,12 +9,17 @@ from rest_framework.test import (
 )
 
 from employees.models import Employee
-from employees.tests.factories import *
+from employees.tests.factories import (
+    EducationFactory,
+    EmergencyContactFactory,
+    EmployeeFactory,
+    WorkHistoryFactory,
+)
+from users.tests import UserFactory
 
 
 class EmployeeViewsetTestCase(APITestCase):
     def setUp(self):
-        User = get_user_model()
         self.user = UserFactory()
         self.employee = EmployeeFactory(user=self.user)
 

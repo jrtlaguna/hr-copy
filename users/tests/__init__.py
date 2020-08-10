@@ -1,1 +1,1 @@
-from .factories import *
+from .factories import UserFactory

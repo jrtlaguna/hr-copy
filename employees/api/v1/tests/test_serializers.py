@@ -5,7 +5,6 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
 
-from employees.models import Education, EmergencyContact, Employee, WorkHistory
 from employees.api.v1.serializers import (
     EducationSerializer,
     EmergencyContactSerializer,
@@ -13,7 +12,14 @@ from employees.api.v1.serializers import (
     UserSerializer,
     WorkHistorySerializer,
 )
-from employees.tests.factories import *
+from employees.models import Education, EmergencyContact, Employee, WorkHistory
+from employees.tests.factories import (
+    EducationFactory,
+    EmergencyContactFactory,
+    EmployeeFactory,
+    WorkHistoryFactory,
+)
+from users.tests.factories import UserFactory
 
 
 class EmployeeSerializerTestCase(APITestCase):
