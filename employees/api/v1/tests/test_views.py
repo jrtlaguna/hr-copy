@@ -9,7 +9,7 @@ from rest_framework.test import (
 )
 
 from employees.models import Employee
-from .factories import *
+from employees.tests.factories import *
 
 
 class EmployeeViewsetTestCase(APITestCase):

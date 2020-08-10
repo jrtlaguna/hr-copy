@@ -2,18 +2,7 @@ import factory
 from django.contrib.auth import get_user_model
 
 from employees.models import Education, EmergencyContact, Employee, WorkHistory
-
-User = get_user_model()
-
-
-class UserFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = User
-
-    password = "testuserpassword"
-    first_name = "Foo"
-    last_name = "Bar"
-    email = "testuser@gmail.com"
+from users.tests.factories import UserFactory
 
 
 class EmployeeFactory(factory.django.DjangoModelFactory):
