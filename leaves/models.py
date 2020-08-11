@@ -44,8 +44,8 @@ class LeaveApplication(models.Model):
     to_date = models.DateField(_("To Date"),)
     reason = models.TextField(_("Reason"),)
     status = models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=50,)
-    created_at = models.DateTimeField(_("Created At"))
-    updated_at = models.DateTimeField(_("Updated At"))
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True,)
+    updated_at = models.DateTimeField(_("Updated At"), auto_now=True,)
 
     def __str__(self):
         return self.employee.user.get_full_name()
@@ -61,8 +61,8 @@ class LeaveType(models.Model):
     is_optional = models.BooleanField(_("Is Optional"),)
     is_convertible_to_cash = models.BooleanField(_("Is Convertible To Cash"),)
     is_carry_forwarded = models.BooleanField(_("Is Carry Forwarded"),)
-    created_at = models.DateTimeField(_("Created At"))
-    updated_at = models.DateTimeField(_("Updated At"))
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated At"), auto_now=True,)
 
     def __str__(self):
         return self.name
@@ -89,8 +89,8 @@ class LeaveAllocation(models.Model):
     to_date = models.DateField(_("To Date"),)
     count = models.IntegerField(_("Count"), validators=[MinValueValidator(0),],)
     notes = models.TextField(_("Notes"), **OPTIONAL)
-    created_at = models.DateTimeField(_("Created At"))
-    updated_at = models.DateTimeField(_("Updated At"))
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True,)
+    updated_at = models.DateTimeField(_("Updated At"), auto_now=True,)
 
     def __str__(self):
         return self.employee.user.get_full_name()
