@@ -36,6 +36,8 @@ class EducationAdmin(admin.ModelAdmin):
     list_select_related = ("employee",)
     raw_id_fields = ("employee",)
     search_fields = (
+        "employee__user__first_name",
+        "employee__user__last_name",
         "employee__nickname",
         "school",
         "degree",
@@ -53,6 +55,8 @@ class EmergencyContactAdmin(admin.ModelAdmin):
     list_select_related = ("employee",)
     raw_id_fields = ("employee",)
     search_fields = (
+        "employee__user__first_name",
+        "employee__user__last_name",
         "employee__nickname",
         "name",
     )
@@ -92,7 +96,9 @@ class WorkHistoryAdmin(admin.ModelAdmin):
     list_filter = ("position",)
     raw_id_fields = ("employee",)
     search_fields = (
-        "employee",
+        "employee__user__first_name",
+        "employee__user__last_name",
+        "employee__nickname",
         "company",
         "position",
     )
