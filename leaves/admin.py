@@ -25,6 +25,10 @@ class LeaveAllocationAdmin(admin.ModelAdmin):
         "employee",
         "leave_type",
     )
+    readonly_fields = (
+        "created",
+        "modified",
+    )
     search_fields = (
         "employee__user__first_name",
         "employee__user__last_name",
@@ -56,6 +60,10 @@ class LeaveApplicationAdmin(admin.ModelAdmin):
         "employee",
         "leave_type",
     )
+    readonly_fields = (
+        "created",
+        "modified",
+    )
     search_fields = (
         "employee__user__first_name",
         "employee__user__last_name",
@@ -80,5 +88,9 @@ class LeaveTypeAdmin(admin.ModelAdmin):
         "is_carry_forwarded",
         "is_convertible_to_cash",
         "is_carry_forwarded",
+    )
+    readonly_fields = (
+        "created",
+        "modified",
     )
     search_fields = ("name",)

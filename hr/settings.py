@@ -59,8 +59,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "employees",
-    "users",
     "leaves",
+    "users",
 ]
 
 SITE_ID = 1
