@@ -23,8 +23,20 @@ urlpatterns = [
         include(
             [
                 path(r"auth/", include(("rest_auth.urls")),),
-                path(r"users/", include(("users.api.v1.urls")),),
-                path(r"employees/", include(("employees.api.v1.urls")),),
+                path(
+                    r"v1/users/",
+                    include(("users.api.v1.urls", "users"), namespace="users-v1"),
+                ),
+                path(
+                    r"v1/employees/",
+                    include(
+                        ("employees.api.v1.urls", "employees"), namespace="employees-v1"
+                    ),
+                ),
+                path(
+                    r"v1/leaves/",
+                    include(("leaves.api.v1.urls", "leaves"), namespace="leaves-v1"),
+                ),
             ],
         ),
     ),

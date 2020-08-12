@@ -57,7 +57,7 @@ class LeaveApplication(TimeStampedModel):
 
 class LeaveType(TimeStampedModel):
     name = models.CharField(_("Name"), max_length=50,)
-    is_active = models.BooleanField(_("Is Active"))
+    is_active = models.BooleanField(_("Is Active"), default=True)
     is_paid = models.BooleanField(_("Is Paid"),)
     is_optional = models.BooleanField(_("Is Optional"),)
     is_convertible_to_cash = models.BooleanField(_("Is Convertible To Cash"),)
@@ -84,7 +84,7 @@ class LeaveAllocation(TimeStampedModel):
         related_name="leave_allocations",
         on_delete=models.PROTECT,
     )
-    is_active = models.BooleanField(_("Is Active"))
+    is_active = models.BooleanField(_("Is Active"), default=True)
     from_date = models.DateField(_("From Date"),)
     to_date = models.DateField(_("To Date"),)
     count = models.IntegerField(_("Count"), validators=[MinValueValidator(0),],)

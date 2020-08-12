@@ -15,7 +15,7 @@ from employees.tests.factories import (
     EmployeeFactory,
     WorkHistoryFactory,
 )
-from users.tests import UserFactory
+from users.tests.factories import UserFactory
 
 
 class EmployeeViewsetTestCase(APITestCase):
@@ -25,12 +25,12 @@ class EmployeeViewsetTestCase(APITestCase):
 
     def test_employee_list_not_authenticated(self):
         self.client.force_authenticate(user=None)
-        response = self.client.get(reverse("employees-list"))
+        response = self.client.get(reverse("employees-v1:employees-list"))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_employee_list(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("employees-list"))
+        response = self.client.get(reverse("employees-v1:employees-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_employee(self):
@@ -72,40 +72,50 @@ class EmployeeViewsetTestCase(APITestCase):
         }
 
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(reverse("employees-list"), data=data, format="json")
+        response = self.client.post(
+            reverse("employees-v1:employees-list"), data=data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_employee_detail(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("employees-detail", kwargs={"pk": self.employee.id})
+            reverse("employees-v1:employees-detail", kwargs={"pk": self.employee.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_search_by_nickname(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("employees-list"), {"search": "roger"})
+        response = self.client.get(
+            reverse("employees-v1:employees-list"), {"search": "roger"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(bool(response.json()))
         self.assertIn("roger", response.json()[0].get("nickname"))
 
     def test_search_by_firstname(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("employees-list"), {"search": "foo"})
+        response = self.client.get(
+            reverse("employees-v1:employees-list"), {"search": "foo"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(bool(response.json()))
         self.assertIn("foo", response.json()[0]["user"].get("first_name").lower())
 
     def test_search_by_lastname(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("employees-list"), {"search": "bar"})
+        response = self.client.get(
+            reverse("employees-v1:employees-list"), {"search": "bar"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(bool(response.json()))
         self.assertIn("bar", response.json()[0]["user"].get("last_name").lower())
 
     def test_search_by_email(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("employees-list"), {"search": "testuser"})
+        response = self.client.get(
+            reverse("employees-v1:employees-list"), {"search": "testuser"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(bool(response.json()))
         self.assertIn("testuser", response.json()[0]["user"].get("email"))
@@ -114,7 +124,7 @@ class EmployeeViewsetTestCase(APITestCase):
         data = {"user": {"email": "newemail@gmail.com"}}
         self.client.force_authenticate(user=None)
         response = self.client.patch(
-            reverse("employees-detail", kwargs={"pk": self.employee.id}),
+            reverse("employees-v1:employees-detail", kwargs={"pk": self.employee.id}),
             data=data,
             format="json",
         )
@@ -160,7 +170,7 @@ class EmployeeViewsetTestCase(APITestCase):
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.put(
-            reverse("employees-detail", kwargs={"pk": self.employee.id}),
+            reverse("employees-v1:employees-detail", kwargs={"pk": self.employee.id}),
             data=data,
             format="json",
         )
@@ -174,7 +184,7 @@ class EmployeeViewsetTestCase(APITestCase):
         data = {"user": {"email": "newemail@gmail.com"}}
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(
-            reverse("employees-detail", kwargs={"pk": self.employee.id}),
+            reverse("employees-v1:employees-detail", kwargs={"pk": self.employee.id}),
             data=data,
             format="json",
         )
@@ -186,14 +196,14 @@ class EmployeeViewsetTestCase(APITestCase):
     def test_archive_employee_unauthorized(self):
         self.client.force_authenticate(user=None)
         response = self.client.patch(
-            reverse("employees-detail", kwargs={"pk": self.employee.id})
+            reverse("employees-v1:employees-detail", kwargs={"pk": self.employee.id})
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_archive_employee(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
-            reverse("employees-detail", kwargs={"pk": self.employee.id})
+            reverse("employees-v1:employees-detail", kwargs={"pk": self.employee.id})
         )
         self.employee.refresh_from_db()
         self.assertEqual(self.employee.user.is_active, False)
