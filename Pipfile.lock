@@ -50,7 +50,6 @@
             "hashes": [
                 "sha256:1a63f5bb6ff4d7c42f62a519edc2adbb37f9b78068a5a862beff858b68e3dc8b",
                 "sha256:2d390268a13c655c97e0e2ede9d117007996db692c1bb93eabebd4fb7ea7012b"
-<<<<<<< HEAD
             ],
             "index": "pypi",
             "version": "==3.1"
@@ -60,24 +59,6 @@
                 "sha256:f17209410b7f87da0a84639fd79d3771b596a6d3fc1a8e48ce50dabc7f441d30"
             ],
             "index": "pypi",
-            "version": "==0.42.0"
-        },
-        "django-allauth": {
-            "hashes": [
-                "sha256:f17209410b7f87da0a84639fd79d3771b596a6d3fc1a8e48ce50dabc7f441d30"
-            ],
-            "index": "pypi",
-=======
-            ],
-            "index": "pypi",
-            "version": "==3.1"
-        },
-        "django-allauth": {
-            "hashes": [
-                "sha256:f17209410b7f87da0a84639fd79d3771b596a6d3fc1a8e48ce50dabc7f441d30"
-            ],
-            "index": "pypi",
->>>>>>> 1229a602e329aabbdbbbe0a63ea6e5f801f43fb2
             "version": "==0.42.0"
         },
         "django-environ": {
