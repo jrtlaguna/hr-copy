@@ -9,13 +9,14 @@ verify_ssl = true
 django = "*"
 django-allauth = "*"
 django-environ = "*"
-django-extensions = "*"
 djangorestframework = "*"
 django-rest-auth = "*"
 django-restql = "*"
 drf-writable-nested = "*"
 factory-boy = "*"
 psycopg2-binary = "*"
+django-extensions = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.8"
