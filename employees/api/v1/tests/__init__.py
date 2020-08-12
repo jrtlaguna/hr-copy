@@ -1,2 +1,0 @@
-from .test_serializers import EmployeeSerializerTestCase
-from .test_views import EmployeeViewsetTestCase

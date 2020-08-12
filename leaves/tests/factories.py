@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from factory.django import DjangoModelFactory
 
 from django.contrib.auth import get_user_model

@@ -31,7 +31,7 @@ class EmployeeSerializerTestCase(APITestCase):
         work_history = WorkHistoryFactory(employee=self.employee)
 
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("employees-list"))
+        response = self.client.get(reverse("employees-v1:employees-list"))
         self.response_data = json.loads(response.content)
 
     def test_employee_object(self):

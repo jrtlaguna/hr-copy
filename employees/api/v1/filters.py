@@ -1,14 +1,14 @@
-from django.db.models import Q
-
-import django_filters as filters
 from django_filters import FilterSet
+from django_filters.filters import CharFilter
+
+from django.db.models import Q
 
 from employees.models import Employee
 from users.models import User
 
 
 class EmployeeFilter(FilterSet):
-    search = filters.CharFilter(method="_multi_search", label="name or email")
+    search = CharFilter(method="_multi_search", label="name or email")
 
     def _multi_search(self, queryset, name, value):
         return queryset.filter(

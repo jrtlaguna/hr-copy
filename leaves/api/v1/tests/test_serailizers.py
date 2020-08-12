@@ -16,7 +16,7 @@ class LeaveTypeSerializerTestCase(APITestCase):
         self.leave_type = LeaveTypeFactory()
 
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("leave-types-list"))
+        response = self.client.get(reverse("leaves-v1:leave-types-list"))
         self.response_data = json.loads(response.content)
 
     def test_leave_type_object(self):

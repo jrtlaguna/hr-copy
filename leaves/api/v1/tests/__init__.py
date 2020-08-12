@@ -1,2 +1,0 @@
-from .test_leave_type_views import LeaveTypeTestCase
-from .test_serailizers import LeaveTypeSerializer

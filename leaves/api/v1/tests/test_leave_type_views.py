@@ -14,12 +14,12 @@ class LeaveTypeTestCase(APITestCase):
 
     def test_leave_type_list_not_authenticated(self):
         self.client.force_authenticate(user=None)
-        response = self.client.get(reverse("leave-types-list"))
+        response = self.client.get(reverse("leaves-v1:leave-types-list"))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_leave_type_list(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("leave-types-list"))
+        response = self.client.get(reverse("leaves-v1:leave-types-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_leave_type(self):
@@ -34,21 +34,23 @@ class LeaveTypeTestCase(APITestCase):
 
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
-            reverse("leave-types-list"), data=data, format="json"
+            reverse("leaves-v1:leave-types-list"), data=data, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_leave_type_detail(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leave-types-detail", kwargs={"pk": self.leave_type.id})
+            reverse("leaves-v1:leave-types-detail", kwargs={"pk": self.leave_type.id})
         )
         self.assertTrue(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_search_leave_type_by_name(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("leave-types-list"), {"search": "unpaid"})
+        response = self.client.get(
+            reverse("leaves-v1:leave-types-list"), {"search": "unpaid"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
         self.assertIn("unpaid", response.data[0].get("name").lower())
@@ -57,7 +59,7 @@ class LeaveTypeTestCase(APITestCase):
         data = {"name": "Maternity Leave"}
         self.client.force_authenticate(user=None)
         response = self.client.patch(
-            reverse("leave-types-detail", kwargs={"pk": self.leave_type.id}),
+            reverse("leaves-v1:leave-types-detail", kwargs={"pk": self.leave_type.id}),
             data=data,
             format="json",
         )
@@ -74,7 +76,7 @@ class LeaveTypeTestCase(APITestCase):
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.put(
-            reverse("leave-types-detail", kwargs={"pk": self.leave_type.id}),
+            reverse("leaves-v1:leave-types-detail", kwargs={"pk": self.leave_type.id}),
             data=data,
             format="json",
         )
@@ -89,10 +91,19 @@ class LeaveTypeTestCase(APITestCase):
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(
-            reverse("leave-types-detail", kwargs={"pk": self.leave_type.id}),
+            reverse("leaves-v1:leave-types-detail", kwargs={"pk": self.leave_type.id}),
             data=data,
             format="json",
         )
         self.leave_type.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("is_carry_forwarded"), True)
+
+    def test_archive_employee(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(
+            reverse("leaves-v1:leave-types-detail", kwargs={"pk": self.leave_type.id})
+        )
+        self.leave_type.refresh_from_db()
+        self.assertEqual(self.leave_type.is_active, False)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
