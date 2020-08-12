@@ -1,12 +1,9 @@
 import json
 
-from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import (
-    APIRequestFactory,
-    APITestCase,
-    force_authenticate,
-)
+from rest_framework.test import APITestCase, force_authenticate
+
+from django.urls import reverse
 
 from leaves.api.v1.serializers import LeaveTypeSerializer
 from leaves.tests.factories import LeaveTypeFactory
@@ -23,8 +20,6 @@ class LeaveTypeSerializerTestCase(APITestCase):
         self.response_data = json.loads(response.content)
 
     def test_leave_type_object(self):
-        leave_type_serializer_data = json.dumps(
-            LeaveTypeSerializer(self.leave_type).data
-        )
-        leave_type_serializer_data = [json.loads(leave_type_serializer_data)]
+        leave_type_serializer_data = LeaveTypeSerializer(self.leave_type).data
+        leave_type_serializer_data = [leave_type_serializer_data]
         self.assertEqual(self.response_data, leave_type_serializer_data)

@@ -1,14 +1,10 @@
-from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import (
-    APIRequestFactory,
-    APITestCase,
-    APITransactionTestCase,
-    force_authenticate,
-)
+from rest_framework.test import APITestCase, force_authenticate
 
-from users.tests.factories import UserFactory
+from django.urls import reverse
+
 from leaves.tests.factories import LeaveTypeFactory
+from users.tests.factories import UserFactory
 
 
 class LeaveTypeTestCase(APITestCase):
@@ -33,6 +29,7 @@ class LeaveTypeTestCase(APITestCase):
             "is_optional": True,
             "is_convertible_to_cash": True,
             "is_carry_forwarded": False,
+            "is_active": True,
         }
 
         self.client.force_authenticate(user=self.user)
@@ -53,8 +50,8 @@ class LeaveTypeTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(reverse("leave-types-list"), {"search": "unpaid"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.json())
-        self.assertIn("unpaid", response.json()[0].get("name").lower())
+        self.assertTrue(response.data)
+        self.assertIn("unpaid", response.data[0].get("name").lower())
 
     def test_update_leave_type_unauthorized(self):
         data = {"name": "Maternity Leave"}
@@ -73,6 +70,7 @@ class LeaveTypeTestCase(APITestCase):
             "is_optional": False,
             "is_convertible_to_cash": False,
             "is_carry_forwarded": False,
+            "is_active": True,
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.put(

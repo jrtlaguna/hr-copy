@@ -1,8 +1,9 @@
-from django.http import Http404
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from django.http import Http404
 
 from leaves.api.v1.filters import LeaveTypeFilter
 from leaves.api.v1.serializers import LeaveTypeSerializer

@@ -1,12 +1,13 @@
 from datetime import datetime
 
-import factory
+from factory.django import DjangoModelFactory
+
 from django.contrib.auth import get_user_model
 
 from leaves.models import LeaveType
 
 
-class LeaveTypeFactory(factory.django.DjangoModelFactory):
+class LeaveTypeFactory(DjangoModelFactory):
     class Meta:
         model = LeaveType
 
@@ -15,3 +16,4 @@ class LeaveTypeFactory(factory.django.DjangoModelFactory):
     is_optional = False
     is_convertible_to_cash = False
     is_carry_forwarded = True
+    is_active = True
