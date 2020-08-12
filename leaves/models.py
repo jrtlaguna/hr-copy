@@ -1,7 +1,8 @@
+from django_extensions.db.models import TimeStampedModel
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.models import TimeStampedModel
 
 from core.models import OPTIONAL
 from employees.models import Employee
@@ -9,18 +10,18 @@ from employees.models import Employee
 
 class LeaveApplication(TimeStampedModel):
 
-    DRAFT = "draft"
-    OPEN = "open"
-    APPROVED = "approved"
-    DECLINED = "declined"
-    CANCELLED = "cancelled"
+    STATUS_DRAFT = "draft"
+    STATUS_OPEN = "open"
+    STATUS_APPROVED = "approved"
+    STATUS_DECLINED = "declined"
+    STATUS_CANCELLED = "cancelled"
 
     STATUS_CHOICES = (
-        (DRAFT, "draft"),
-        (OPEN, "open"),
-        (APPROVED, "approved"),
-        (DECLINED, "declined"),
-        (CANCELLED, "cancelled"),
+        (STATUS_DRAFT, "draft"),
+        (STATUS_OPEN, "open"),
+        (STATUS_APPROVED, "approved"),
+        (STATUS_DECLINED, "declined"),
+        (STATUS_CANCELLED, "cancelled"),
     )
 
     approver = models.ForeignKey(
