@@ -99,7 +99,7 @@ class LeaveTypeTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("is_carry_forwarded"), True)
 
-    def test_archive_employee(self):
+    def test_archive_leave_type(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
             reverse("leaves-v1:leave-types-detail", kwargs={"pk": self.leave_type.id})
