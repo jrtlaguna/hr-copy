@@ -6,6 +6,9 @@ from rest_framework.routers import DefaultRouter
 from leaves.api.v1 import viewsets
 
 router = DefaultRouter()
+router.register(
+    r"allocations", viewsets.LeaveAllocationViewSet, basename="leave-allocations"
+)
 router.register(r"types", viewsets.LeaveTypeViewSet, basename="leave-types")
 
 

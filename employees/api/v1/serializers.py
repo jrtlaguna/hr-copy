@@ -1,6 +1,5 @@
 from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from core.serializers import CustomWritableNestedModelSerializer
 from employees.models import (
@@ -9,23 +8,22 @@ from employees.models import (
     WorkHistory,
     Education,
 )
-from users.models import User
 from users.api.v1.serializers import UserSerializer
 
 
-class EmergencyContactSerializer(serializers.ModelSerializer):
+class EmergencyContactSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = EmergencyContact
         exclude = ("employee",)
 
 
-class WorkHistorySerializer(serializers.ModelSerializer):
+class WorkHistorySerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = WorkHistory
         exclude = ("employee",)
 
 
-class EducationSerializer(serializers.ModelSerializer):
+class EducationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Education
         exclude = ("employee",)

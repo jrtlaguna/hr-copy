@@ -1,12 +1,15 @@
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
+from django_restql.mixins import DynamicFieldsMixin
 from drf_writable_nested.mixins import UniqueFieldsMixin
 from rest_framework import serializers
 
 from users.models import User
 
 
-class UserSerializer(UniqueFieldsMixin, serializers.ModelSerializer):
+class UserSerializer(
+    UniqueFieldsMixin, DynamicFieldsMixin, serializers.ModelSerializer
+):
     class Meta:
         model = User
         fields = [

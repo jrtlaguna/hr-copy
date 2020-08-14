@@ -45,7 +45,9 @@ class LeaveApplication(TimeStampedModel):
     from_date = models.DateField(_("From Date"),)
     to_date = models.DateField(_("To Date"),)
     reason = models.TextField(_("Reason"),)
-    status = models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=50,)
+    status = models.CharField(
+        _("Status"), choices=STATUS_CHOICES, default=STATUS_DRAFT, max_length=50,
+    )
 
     def __str__(self):
         return self.employee.user.get_full_name()
