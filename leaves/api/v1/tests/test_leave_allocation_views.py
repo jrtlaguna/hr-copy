@@ -75,7 +75,7 @@ class LeaveAllocationTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        self.assertIn("Foo", response.data[0].get("employee").values())
+        self.assertIn("Foo", response.data[0].get("employee").get("user").values())
 
     def test_patch_leave_allocation_unauthorized(self):
         data = {"count": 3}
