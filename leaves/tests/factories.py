@@ -1,14 +1,10 @@
-from datetime import datetime
-
 import factory
-
-from django.contrib.auth import get_user_model
 
 from employees.tests.factories import EmployeeFactory
 from leaves.models import LeaveAllocation, LeaveType
 
 
-class LeaveTypeFactory(factory.DjangoModelFactory):
+class LeaveTypeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LeaveType
 
@@ -19,7 +15,7 @@ class LeaveTypeFactory(factory.DjangoModelFactory):
     is_carry_forwarded = True
 
 
-class LeaveAllocationFactory(factory.DjangoModelFactory):
+class LeaveAllocationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LeaveAllocation
 

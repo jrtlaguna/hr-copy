@@ -1,11 +1,9 @@
 from rest_framework import status
-from rest_framework.test import APITestCase, force_authenticate
+from rest_framework.test import APITestCase
 
 from django.urls import reverse
 
-from employees.tests.factories import EmployeeFactory
 from leaves.tests.factories import LeaveAllocationFactory, LeaveTypeFactory
-from users.tests.factories import UserFactory
 
 
 class LeaveAllocationTestCase(APITestCase):

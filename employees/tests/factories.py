@@ -1,5 +1,4 @@
 import factory
-from django.contrib.auth import get_user_model
 
 from employees.models import Education, EmergencyContact, Employee, WorkHistory
 from users.tests.factories import UserFactory

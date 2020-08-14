@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from employees.models import Employee
 from leaves.models import LeaveAllocation, LeaveType
@@ -11,7 +10,7 @@ class LeaveTypeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class LeaveTypeLinkSerializer(serializers.HyperlinkedModelSerializer):
+class LeaveTypeRelationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="leaves-v1:leave-types-detail")
 
     class Meta:
@@ -23,7 +22,7 @@ class LeaveTypeLinkSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class EmployeeLinkSerializer(serializers.HyperlinkedModelSerializer):
+class EmployeeRelationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="employees-v1:employees-detail"
     )
@@ -44,17 +43,14 @@ class EmployeeLinkSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class CreateUpdateLeaveAllocationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LeaveAllocation
-        fields = "__all__"
-
-
 class LeaveAllocationSerializer(serializers.ModelSerializer):
-    leave_type = LeaveTypeLinkSerializer(read_only=True)
-    employee = EmployeeLinkSerializer(read_only=True)
-
     class Meta:
         model = LeaveAllocation
         fields = "__all__"
 
+    def to_representation(self, instance):
+        request = self.context.get("request")
+        if request.method == "GET":
+            self.fields["employee"] = EmployeeRelationSerializer()
+            self.fields["leave_type"] = LeaveTypeRelationSerializer()
+        return super().to_representation(instance)
