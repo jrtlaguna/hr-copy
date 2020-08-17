@@ -77,7 +77,7 @@ class LeaveAllocation(TimeStampedModel):
     employee = models.ForeignKey(
         "employees.employee",
         verbose_name=_("Employee"),
-        related_name="leave_allocation",
+        related_name="leave_allocations",
         on_delete=models.PROTECT,
     )
     leave_type = models.ForeignKey(
