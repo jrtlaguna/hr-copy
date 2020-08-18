@@ -1,7 +1,6 @@
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from leaves.api.v1.filters import (
@@ -28,11 +27,9 @@ class LeaveTypeViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
 
     def destroy(self, request, *args, **kwargs):
-
         instance = self.get_object()
         instance.is_active = False
         instance.save()
-
         return Response(status=status.HTTP_200_OK)
 
 
@@ -43,11 +40,9 @@ class LeaveAllocationViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
 
     def destroy(self, request, *args, **kwargs):
-
         instance = self.get_object()
         instance.is_active = False
         instance.save()
-
         return Response(status=status.HTTP_200_OK)
 
 
@@ -58,55 +53,46 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     http_method_names = ["get", "post", "head", "put", "patch"]
 
-    def perform_create(self, serializer):
-        try:
-            data = serializer.validated_data
-
-            employee = data.get("employee")
-            leave_type = data.get("leave_type")
-            leave_allocations = employee.leave_allocations.filter(
-                leave_type=leave_type, is_active=True, count__gt=0
-            ).all()
-
-            if not leave_allocations:
-                raise ValidationError("Insufficient Leave Allocation")
-            return super().perform_create(serializer)
-
-        except Exception as e:
-            raise ValidationError(e)
-
-    @action(detail=True, methods=["post"])
+    @action(detail=True, url_path="submit", methods=["post"])
     def submit(self, request, pk=None):
-
         application = self.get_object()
-        application.status = "open"
+        application.status = LeaveApplication.STATUS_SUBMITTED
         application.save()
+        serializer = self.get_serializer(application)
+        return Response(serializer.data)
 
-        return Response(status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=["post"])
+    @action(detail=True, url_path="approve", methods=["post"])
     def approve(self, request, pk=None):
 
+        request = self.request
         application = self.get_object()
-        application.status = "approved"
+        approver = application.approver.user
+        if approver != request.user:
+            return Response(
+                {"detail": "User unauthorized."}, status=status.HTTP_401_UNAUTHORIZED
+            )
+        application.status = LeaveApplication.STATUS_APPROVED
         application.save()
+        serializer = self.get_serializer(application)
+        return Response(serializer.data)
 
-        return Response(status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=["post"])
+    @action(detail=True, url_path="decline", methods=["post"])
     def decline(self, request, pk=None):
-
         application = self.get_object()
-        application.status = "declined"
+        approver = application.approver.user
+        if approver != request.user:
+            return Response(
+                {"detail": "User unauthorized."}, status=status.HTTP_401_UNAUTHORIZED
+            )
+        application.status = LeaveApplication.STATUS_DECLINED
         application.save()
+        serializer = self.get_serializer(application)
+        return Response(serializer.data)
 
-        return Response(status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=["post"])
+    @action(detail=True, url_path="cancel", methods=["post"])
     def cancel(self, request, pk=None):
-
         application = self.get_object()
-        application.status = "cancelled"
+        application.status = LeaveApplication.STATUS_CANCELLED
         application.save()
-
-        return Response(status=status.HTTP_200_OK)
+        serializer = self.get_serializer(application)
+        return Response(serializer.data)

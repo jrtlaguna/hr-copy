@@ -11,14 +11,14 @@ from employees.models import Employee
 class LeaveApplication(TimeStampedModel):
 
     STATUS_DRAFT = "draft"
-    STATUS_OPEN = "open"
+    STATUS_SUBMITTED = "submitted"
     STATUS_APPROVED = "approved"
     STATUS_DECLINED = "declined"
     STATUS_CANCELLED = "cancelled"
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, "draft"),
-        (STATUS_OPEN, "open"),
+        (STATUS_SUBMITTED, "submitted"),
         (STATUS_APPROVED, "approved"),
         (STATUS_DECLINED, "declined"),
         (STATUS_CANCELLED, "cancelled"),

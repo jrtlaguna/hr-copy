@@ -8,7 +8,8 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
+    username = factory.Sequence(lambda n: f"user{n}")
     password = "testuserpassword"
-    first_name = "Foo"
+    first_name = factory.Sequence(lambda n: f"Foo{n}")
     last_name = "Bar"
-    email = "testuser@gmail.com"
+    email = factory.Sequence(lambda n: f"person{n}@gmail.com")

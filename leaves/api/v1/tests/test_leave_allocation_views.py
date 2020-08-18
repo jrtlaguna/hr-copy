@@ -3,15 +3,19 @@ from rest_framework.test import APITestCase
 
 from django.urls import reverse
 
+from employees.tests.factories import EmployeeFactory
 from leaves.tests.factories import LeaveAllocationFactory, LeaveTypeFactory
+from users.tests.factories import UserFactory
 
 
 class LeaveAllocationTestCase(APITestCase):
     def setUp(self):
-        self.leave_allocation = LeaveAllocationFactory()
+        self.user = UserFactory()
+        self.employee = EmployeeFactory(user=self.user)
         self.leave_type = LeaveTypeFactory()
-        self.employee = self.leave_allocation.employee
-        self.user = self.employee.user
+        self.leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=self.leave_type
+        )
 
     def test_get_leave_allocation_list_unauthorized(self):
         self.client.force_authenticate(user=None)
@@ -53,11 +57,16 @@ class LeaveAllocationTestCase(APITestCase):
     def test_search_leave_allocation_by_leave_type(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:leave-allocations-list"), {"leave_type": "unpaid"}
+            reverse("leaves-v1:leave-allocations-list"),
+            {"leave_type": self.leave_allocation.leave_type.id},
         )
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        self.assertIn("unpaid", response.data[0].get("leave_type").get("name").lower())
+        self.assertEqual(
+            self.leave_allocation.leave_type.id,
+            response.data[0].get("leave_type").get("id"),
+        )
 
     def test_search_leave_allocation_by_is_active(self):
         self.client.force_authenticate(user=self.user)
@@ -68,14 +77,17 @@ class LeaveAllocationTestCase(APITestCase):
         self.assertTrue(response.data)
         self.assertTrue(True, response.data[0].get("is_active"))
 
-    def test_search_leave_allocation_by_employee_name(self):
+    def test_search_leave_allocation_by_employee(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:leave-allocations-list"), {"name": "Foo"}
+            reverse("leaves-v1:leave-allocations-list"), {"employee": self.employee.id}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        self.assertIn("Foo", response.data[0].get("employee").get("user").values())
+        self.assertEqual(
+            self.leave_allocation.employee.id,
+            response.data[0].get("employee").get("id"),
+        )
 
     def test_patch_leave_allocation_unauthorized(self):
         data = {"count": 3}

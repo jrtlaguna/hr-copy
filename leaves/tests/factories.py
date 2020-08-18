@@ -1,7 +1,10 @@
 import factory
 
-from employees.tests.factories import EmployeeFactory
-from leaves.models import LeaveAllocation, LeaveType
+from leaves.models import (
+    LeaveAllocation,
+    LeaveApplication,
+    LeaveType,
+)
 
 
 class LeaveTypeFactory(factory.django.DjangoModelFactory):
@@ -19,9 +22,15 @@ class LeaveAllocationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LeaveAllocation
 
-    employee = factory.SubFactory(EmployeeFactory)
-    leave_type = factory.SubFactory(LeaveTypeFactory)
     from_date = "2020-01-01"
     to_date = "2020-12-12"
     count = 7
     notes = "Leave Allocation"
+
+
+class LeaveApplicationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = LeaveApplication
+
+    from_date = "2020-08-17"
+    to_date = "2020-08-20"

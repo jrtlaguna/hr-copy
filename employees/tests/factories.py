@@ -8,8 +8,6 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Employee
 
-    user = factory.SubFactory(UserFactory)
-
     date_of_birth = "1994-01-01"
     contact_number = "09224567895"
     address = "PH"

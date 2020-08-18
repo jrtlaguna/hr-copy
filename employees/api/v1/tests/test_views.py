@@ -103,11 +103,11 @@ class EmployeeViewsetTestCase(APITestCase):
     def test_search_by_email(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("employees-v1:employees-list"), {"search": "testuser"}
+            reverse("employees-v1:employees-list"), {"search": self.employee.user.email}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(bool(response.json()))
-        self.assertIn("testuser", response.json()[0]["user"].get("email"))
+        self.assertIn(self.employee.user.email, response.json()[0]["user"].get("email"))
 
     def test_update_employee_unauthorized(self):
         data = {"user": {"email": "newemail@gmail.com"}}
