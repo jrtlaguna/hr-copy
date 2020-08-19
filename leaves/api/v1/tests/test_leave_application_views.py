@@ -9,15 +9,19 @@ from leaves.tests.factories import (
     LeaveAllocationFactory,
     LeaveTypeFactory,
 )
+from leaves.models import LeaveApplication
 from users.tests.factories import UserFactory
 
 
-class LeaveTypeTestCase(APITestCase):
+class LeaveApplicationTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory()
-        self.employee = EmployeeFactory(user=self.user)
-        self.approver = EmployeeFactory(user=UserFactory())
+        self.employee = EmployeeFactory()
+        self.user = self.employee.user
+        self.approver = EmployeeFactory()
         self.leave_type = LeaveTypeFactory()
+        self.leave_allocation = LeaveAllocationFactory(
+            leave_type=self.leave_type, employee=self.employee
+        )
         self.leave_application = LeaveApplicationFactory(
             approver=self.approver, employee=self.employee, leave_type=self.leave_type
         )
@@ -33,8 +37,8 @@ class LeaveTypeTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_leave_application(self):
-        employee = EmployeeFactory(user=UserFactory())
-        approver = EmployeeFactory(user=UserFactory())
+        employee = EmployeeFactory()
+        approver = EmployeeFactory()
         leave_type = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=employee, leave_type=leave_type
@@ -55,8 +59,8 @@ class LeaveTypeTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_leave_application_insufficient_allocation(self):
-        employee = EmployeeFactory(user=UserFactory())
-        approver = EmployeeFactory(user=UserFactory())
+        employee = EmployeeFactory()
+        approver = EmployeeFactory()
         leave_type1 = LeaveTypeFactory()
         leave_type2 = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
@@ -75,7 +79,7 @@ class LeaveTypeTestCase(APITestCase):
         response = self.client.post(
             reverse("leaves-v1:leave-applications-list"), data=data, format="json"
         )
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_leave_application_detail(self):
         self.client.force_authenticate(user=self.user)
@@ -91,25 +95,27 @@ class LeaveTypeTestCase(APITestCase):
     def test_search_leave_application_by_approver(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:leave-applications-list"), {"approver": self.approver.id}
+            reverse("leaves-v1:leave-applications-list"),
+            {"approver": self.leave_application.approver.user.first_name},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        self.assertEqual(
-            self.leave_application.approver.id,
-            response.data[0].get("approver").get("id"),
+        self.assertIn(
+            self.leave_application.approver.user.first_name,
+            response.data[0].get("approver").get("user").values(),
         )
 
     def test_search_leave_application_by_employee(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:leave-applications-list"), {"employee": self.employee.id}
+            reverse("leaves-v1:leave-applications-list"),
+            {"employee": self.leave_application.employee.user.first_name},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        self.assertEqual(
-            self.leave_application.employee.id,
-            response.data[0].get("employee").get("id"),
+        self.assertIn(
+            self.leave_application.employee.user.first_name,
+            response.data[0].get("employee").get("user").values(),
         )
 
     def test_search_leave_application_by_status(self):
@@ -136,6 +142,9 @@ class LeaveTypeTestCase(APITestCase):
 
     def test_patch_leave_application(self):
         leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
+        )
         data = {"leave_type": leave_type.id}
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(
@@ -160,7 +169,24 @@ class LeaveTypeTestCase(APITestCase):
         )
         self.leave_application.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.leave_application.status, "submitted")
+        self.assertEqual(
+            self.leave_application.status, LeaveApplication.STATUS_SUBMITTED
+        )
+
+    def test_approve_leave_application_invalid_approver(self):
+        invalid_approver = EmployeeFactory(user=UserFactory())
+        self.client.force_authenticate(user=invalid_approver.user)
+        response = self.client.post(
+            reverse(
+                "leaves-v1:leave-applications-approve",
+                kwargs={"pk": self.leave_application.id},
+            )
+        )
+        self.leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotEqual(
+            self.leave_application.status, LeaveApplication.STATUS_APPROVED
+        )
 
     def test_approve_leave_application(self):
         self.client.force_authenticate(user=self.approver.user)
@@ -172,18 +198,24 @@ class LeaveTypeTestCase(APITestCase):
         )
         self.leave_application.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.leave_application.status, "approved")
+        self.assertEqual(
+            self.leave_application.status, LeaveApplication.STATUS_APPROVED
+        )
 
-    def test_approve_leave_application_invalid_approver(self):
+    def test_decline_leave_application_invalid_approver(self):
         invalid_approver = EmployeeFactory(user=UserFactory())
         self.client.force_authenticate(user=invalid_approver.user)
         response = self.client.post(
             reverse(
-                "leaves-v1:leave-applications-approve",
+                "leaves-v1:leave-applications-decline",
                 kwargs={"pk": self.leave_application.id},
             )
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotEqual(
+            self.leave_application.status, LeaveApplication.STATUS_DECLINED
+        )
 
     def test_decline_leave_application(self):
         self.client.force_authenticate(user=self.approver.user)
@@ -195,15 +227,20 @@ class LeaveTypeTestCase(APITestCase):
         )
         self.leave_application.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.leave_application.status, "declined")
+        self.assertEqual(
+            self.leave_application.status, LeaveApplication.STATUS_DECLINED
+        )
 
-    def test_decline_leave_application_invalid_approver(self):
-        invalid_approver = EmployeeFactory(user=UserFactory())
-        self.client.force_authenticate(user=invalid_approver.user)
+    def test_cancel_leave_application(self):
+        self.client.force_authenticate(user=self.user)
         response = self.client.post(
             reverse(
-                "leaves-v1:leave-applications-decline",
+                "leaves-v1:leave-applications-cancel",
                 kwargs={"pk": self.leave_application.id},
             )
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            self.leave_application.status, LeaveApplication.STATUS_CANCELLED
+        )

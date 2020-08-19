@@ -10,8 +10,8 @@ from users.tests.factories import UserFactory
 
 class LeaveAllocationTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory()
-        self.employee = EmployeeFactory(user=self.user)
+        self.user = UserFactory(is_staff=True)
+        self.employee = EmployeeFactory()
         self.leave_type = LeaveTypeFactory()
         self.leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=self.leave_type
@@ -80,13 +80,13 @@ class LeaveAllocationTestCase(APITestCase):
     def test_search_leave_allocation_by_employee(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:leave-allocations-list"), {"employee": self.employee.id}
+            reverse("leaves-v1:leave-allocations-list"),
+            {"employee": self.employee.nickname},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        self.assertEqual(
-            self.leave_allocation.employee.id,
-            response.data[0].get("employee").get("id"),
+        self.assertIn(
+            self.employee.nickname, response.data[0].get("employee").values(),
         )
 
     def test_patch_leave_allocation_unauthorized(self):

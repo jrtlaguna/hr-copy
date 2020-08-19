@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from leaves.api.v1.filters import (
@@ -18,6 +19,7 @@ from leaves.models import (
     LeaveApplication,
     LeaveType,
 )
+from .permissions import LeaveApplicationPermission
 
 
 class LeaveTypeViewSet(viewsets.ModelViewSet):
@@ -25,6 +27,7 @@ class LeaveTypeViewSet(viewsets.ModelViewSet):
     queryset = LeaveType.objects.all()
     filter_class = LeaveTypeFilter
     filter_backends = (filters.DjangoFilterBackend,)
+    permission_classes = (IsAdminUser,)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -38,6 +41,7 @@ class LeaveAllocationViewSet(viewsets.ModelViewSet):
     queryset = LeaveAllocation.objects.all()
     filter_class = LeaveAllocationFilter
     filter_backends = (filters.DjangoFilterBackend,)
+    permission_classes = (IsAdminUser,)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -52,6 +56,7 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     filter_class = LeaveApplicationFilter
     filter_backends = (filters.DjangoFilterBackend,)
     http_method_names = ["get", "post", "head", "put", "patch"]
+    permission_classes = (LeaveApplicationPermission,)
 
     @action(detail=True, url_path="submit", methods=["post"])
     def submit(self, request, pk=None):
@@ -61,29 +66,21 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(application)
         return Response(serializer.data)
 
-    @action(detail=True, url_path="approve", methods=["post"])
+    @action(
+        detail=True, url_path="approve", methods=["post"],
+    )
     def approve(self, request, pk=None):
-
-        request = self.request
         application = self.get_object()
-        approver = application.approver.user
-        if approver != request.user:
-            return Response(
-                {"detail": "User unauthorized."}, status=status.HTTP_401_UNAUTHORIZED
-            )
         application.status = LeaveApplication.STATUS_APPROVED
         application.save()
         serializer = self.get_serializer(application)
         return Response(serializer.data)
 
-    @action(detail=True, url_path="decline", methods=["post"])
+    @action(
+        detail=True, url_path="decline", methods=["post"],
+    )
     def decline(self, request, pk=None):
         application = self.get_object()
-        approver = application.approver.user
-        if approver != request.user:
-            return Response(
-                {"detail": "User unauthorized."}, status=status.HTTP_401_UNAUTHORIZED
-            )
         application.status = LeaveApplication.STATUS_DECLINED
         application.save()
         serializer = self.get_serializer(application)

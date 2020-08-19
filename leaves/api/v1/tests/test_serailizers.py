@@ -14,7 +14,7 @@ from users.tests.factories import UserFactory
 
 class LeaveTypeSerializerTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory()
+        self.user = UserFactory(is_staff=True)
         self.leave_type = LeaveTypeFactory()
 
         self.client.force_authenticate(user=self.user)
@@ -29,8 +29,8 @@ class LeaveTypeSerializerTestCase(APITestCase):
 
 class LeaveAllocationSerializerTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory()
-        self.employee = EmployeeFactory(user=self.user)
+        self.user = UserFactory(is_staff=True)
+        self.employee = EmployeeFactory()
         self.leave_type = LeaveTypeFactory()
         self.leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=self.leave_type

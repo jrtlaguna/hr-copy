@@ -9,7 +9,7 @@ from users.tests.factories import UserFactory
 
 class LeaveTypeTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory()
+        self.user = UserFactory(is_staff=True)
         self.leave_type = LeaveTypeFactory()
 
     def test_leave_type_list_not_authenticated(self):
