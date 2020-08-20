@@ -42,7 +42,6 @@ class LeaveApplicationFilter(FilterSet):
     class Meta:
         model = LeaveApplication
         fields = [
-            "approver",
             "leave_type",
             "status",
         ]

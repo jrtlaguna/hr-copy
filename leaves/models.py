@@ -73,6 +73,11 @@ class LeaveType(TimeStampedModel):
         verbose_name_plural = _("Leave Types")
 
 
+class LeaveAllocationManager(models.Manager):
+    def active(self):
+        return super().get_queryset().filter(is_active=True)
+
+
 class LeaveAllocation(TimeStampedModel):
     employee = models.ForeignKey(
         "employees.employee",
@@ -91,6 +96,7 @@ class LeaveAllocation(TimeStampedModel):
     to_date = models.DateField(_("To Date"),)
     count = models.IntegerField(_("Count"), validators=[MinValueValidator(0),],)
     notes = models.TextField(_("Notes"), **OPTIONAL)
+    objects = LeaveAllocationManager()
 
     def __str__(self):
         return self.employee.user.get_full_name()
@@ -98,3 +104,4 @@ class LeaveAllocation(TimeStampedModel):
     class Meta:
         verbose_name = _("Leave Allocation")
         verbose_name_plural = _("Leave Allocations")
+

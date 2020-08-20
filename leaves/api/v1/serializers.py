@@ -1,14 +1,11 @@
-from datetime import datetime
-
 from django_restql.fields import NestedField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
 from rest_framework import serializers
-from rest_framework.exceptions import APIException
 
+from django.utils.translation import ugettext_lazy as _
 
 from employees.api.v1.serializers import EmployeeSerializer
-from employees.models import Employee
 from leaves.models import (
     LeaveAllocation,
     LeaveApplication,
@@ -55,14 +52,14 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
             to_date = attrs.get("to_date", self.instance.to_date)
 
         if from_date > to_date:
-            raise serializers.ValidationError("End date must be after start date")
-        leave_allocations = (
-            employee.leave_allocations.filter(
-                leave_type=leave_type, is_active=True, count__gt=0
-            )
-            .filter(from_date__lte=from_date, to_date__gte=to_date)
-            .all()
+            raise serializers.ValidationError(_("End date must be after start date"))
+
+        leave_allocations = employee.leave_allocations.active().filter(
+            leave_type=leave_type,
+            count__gt=0,
+            from_date__lte=from_date,
+            to_date__gte=to_date,
         )
         if not leave_allocations:
-            raise serializers.ValidationError("Insufficient Leave Allocation")
+            raise serializers.ValidationError(_("Insufficient Leave Allocation"))
         return super().validate(attrs)

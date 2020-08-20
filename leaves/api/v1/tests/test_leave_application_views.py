@@ -161,17 +161,44 @@ class LeaveApplicationTestCase(APITestCase):
 
     def test_submit_leave_application(self):
         self.client.force_authenticate(user=self.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
+        )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type, approver=self.approver, employee=self.employee,
+        )
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-submit",
-                kwargs={"pk": self.leave_application.id},
+                kwargs={"pk": leave_application.id},
             )
         )
-        self.leave_application.refresh_from_db()
+        leave_application.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            self.leave_application.status, LeaveApplication.STATUS_SUBMITTED
+        self.assertEqual(leave_application.status, LeaveApplication.STATUS_SUBMITTED)
+
+    def test_submit_leave_application_not_for_submission(self):
+        self.client.force_authenticate(user=self.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
         )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type,
+            approver=self.approver,
+            employee=self.employee,
+            status=LeaveApplication.STATUS_CANCELLED,
+        )
+        response = self.client.post(
+            reverse(
+                "leaves-v1:leave-applications-submit",
+                kwargs={"pk": leave_application.id},
+            )
+        )
+        leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(leave_application.status, LeaveApplication.STATUS_SUBMITTED)
 
     def test_approve_leave_application_invalid_approver(self):
         invalid_approver = EmployeeFactory(user=UserFactory())
@@ -190,17 +217,44 @@ class LeaveApplicationTestCase(APITestCase):
 
     def test_approve_leave_application(self):
         self.client.force_authenticate(user=self.approver.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
+        )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type,
+            approver=self.approver,
+            employee=self.employee,
+            status=LeaveApplication.STATUS_SUBMITTED,
+        )
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-approve",
-                kwargs={"pk": self.leave_application.id},
+                kwargs={"pk": leave_application.id},
             )
         )
-        self.leave_application.refresh_from_db()
+        leave_application.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            self.leave_application.status, LeaveApplication.STATUS_APPROVED
+        self.assertEqual(leave_application.status, LeaveApplication.STATUS_APPROVED)
+
+    def test_approve_leave_application_not_for_approval(self):
+        self.client.force_authenticate(user=self.approver.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
         )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type, approver=self.approver, employee=self.employee,
+        )
+        response = self.client.post(
+            reverse(
+                "leaves-v1:leave-applications-approve",
+                kwargs={"pk": leave_application.id},
+            )
+        )
+        leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(leave_application.status, LeaveApplication.STATUS_APPROVED)
 
     def test_decline_leave_application_invalid_approver(self):
         invalid_approver = EmployeeFactory(user=UserFactory())
@@ -219,28 +273,89 @@ class LeaveApplicationTestCase(APITestCase):
 
     def test_decline_leave_application(self):
         self.client.force_authenticate(user=self.approver.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
+        )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type,
+            approver=self.approver,
+            employee=self.employee,
+            status=LeaveApplication.STATUS_SUBMITTED,
+        )
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-decline",
-                kwargs={"pk": self.leave_application.id},
+                kwargs={"pk": leave_application.id},
             )
         )
-        self.leave_application.refresh_from_db()
+        leave_application.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            self.leave_application.status, LeaveApplication.STATUS_DECLINED
+        self.assertEqual(leave_application.status, LeaveApplication.STATUS_DECLINED)
+
+    def test_decline_leave_application_not_for_decline(self):
+        self.client.force_authenticate(user=self.approver.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
         )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type,
+            approver=self.approver,
+            employee=self.employee,
+            status=LeaveApplication.STATUS_APPROVED,
+        )
+        response = self.client.post(
+            reverse(
+                "leaves-v1:leave-applications-decline",
+                kwargs={"pk": leave_application.id},
+            )
+        )
+        leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(leave_application.status, LeaveApplication.STATUS_DECLINED)
 
     def test_cancel_leave_application(self):
         self.client.force_authenticate(user=self.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
+        )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type,
+            approver=self.approver,
+            employee=self.employee,
+            status=LeaveApplication.STATUS_SUBMITTED,
+        )
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-cancel",
-                kwargs={"pk": self.leave_application.id},
+                kwargs={"pk": leave_application.id},
             )
         )
-        self.leave_application.refresh_from_db()
+        leave_application.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            self.leave_application.status, LeaveApplication.STATUS_CANCELLED
+        self.assertEqual(leave_application.status, LeaveApplication.STATUS_CANCELLED)
+
+    def test_cancel_leave_application_not_for_cancellation(self):
+        self.client.force_authenticate(user=self.user)
+        leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=leave_type
         )
+        leave_application = LeaveApplicationFactory(
+            leave_type=leave_type,
+            approver=self.approver,
+            employee=self.employee,
+            status=LeaveApplication.STATUS_APPROVED,
+        )
+        response = self.client.post(
+            reverse(
+                "leaves-v1:leave-applications-cancel",
+                kwargs={"pk": leave_application.id},
+            )
+        )
+        leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(leave_application.status, LeaveApplication.STATUS_CANCELLED)
+
