@@ -24,11 +24,10 @@ class LeaveApplication(TimeStampedModel):
         (STATUS_CANCELLED, "cancelled"),
     )
 
-    approver = models.ForeignKey(
+    approvers = models.ManyToManyField(
         "employees.employee",
         verbose_name=_("Approver"),
         related_name="approver_leave_applications",
-        on_delete=models.PROTECT,
     )
     employee = models.ForeignKey(
         "employees.employee",
@@ -55,6 +54,29 @@ class LeaveApplication(TimeStampedModel):
     class Meta:
         verbose_name = _("Leave Application")
         verbose_name_plural = _("Leave Applications")
+
+    @property
+    def for_submission_status(self):
+        status = [self.STATUS_DRAFT]
+        return status
+
+    @property
+    def for_approval_status(self):
+        status = [self.STATUS_SUBMITTED]
+        return status
+
+    @property
+    def for_decline_status(self):
+        status = [self.STATUS_SUBMITTED]
+        return status
+
+    @property
+    def for_cancellation_status(self):
+        status = (
+            LeaveApplication.STATUS_DRAFT,
+            LeaveApplication.STATUS_SUBMITTED,
+        )
+        return status
 
 
 class LeaveType(TimeStampedModel):

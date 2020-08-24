@@ -17,14 +17,16 @@ class LeaveApplicationTestCase(APITestCase):
     def setUp(self):
         self.employee = EmployeeFactory()
         self.user = self.employee.user
-        self.approver = EmployeeFactory()
+        self.approver1 = EmployeeFactory()
+        self.approver2 = EmployeeFactory()
         self.leave_type = LeaveTypeFactory()
         self.leave_allocation = LeaveAllocationFactory(
             leave_type=self.leave_type, employee=self.employee
         )
         self.leave_application = LeaveApplicationFactory(
-            approver=self.approver, employee=self.employee, leave_type=self.leave_type
+            employee=self.employee, leave_type=self.leave_type
         )
+        self.leave_application.approvers.add(self.approver1, self.approver2)
 
     def test_leave_application_list_not_authenticated(self):
         self.client.force_authenticate(user=None)
@@ -38,13 +40,14 @@ class LeaveApplicationTestCase(APITestCase):
 
     def test_create_leave_application(self):
         employee = EmployeeFactory()
-        approver = EmployeeFactory()
+        approver1 = EmployeeFactory()
+        approver2 = EmployeeFactory()
         leave_type = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=employee, leave_type=leave_type
         )
         data = {
-            "approver": approver.id,
+            "approvers": {"add": [approver1.id, approver2.id]},
             "employee": employee.id,
             "leave_type": leave_type.id,
             "from_date": "2020-08-08",
@@ -60,14 +63,15 @@ class LeaveApplicationTestCase(APITestCase):
 
     def test_create_leave_application_insufficient_allocation(self):
         employee = EmployeeFactory()
-        approver = EmployeeFactory()
+        approver1 = EmployeeFactory()
+        approver2 = EmployeeFactory()
         leave_type1 = LeaveTypeFactory()
         leave_type2 = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=employee, leave_type=leave_type1
         )
         data = {
-            "approver": approver.id,
+            "approvers": {"add": [approver1.id, approver2.id]},
             "employee": employee.id,
             "leave_type": leave_type2.id,
             "from_date": "2020-08-08",
@@ -92,17 +96,27 @@ class LeaveApplicationTestCase(APITestCase):
         self.assertTrue(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_get_leave_application_detail_unauthorized(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get(
+            reverse(
+                "leaves-v1:leave-applications-detail",
+                kwargs={"pk": self.leave_application.id},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_search_leave_application_by_approver(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
             reverse("leaves-v1:leave-applications-list"),
-            {"approver": self.leave_application.approver.user.first_name},
+            {"approvers": self.leave_application.approvers.first().user.first_name},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
         self.assertIn(
-            self.leave_application.approver.user.first_name,
-            response.data[0].get("approver").get("user").values(),
+            self.leave_application.approvers.first().user.first_name,
+            response.data[0].get("approvers")[0].get("user").values(),
         )
 
     def test_search_leave_application_by_employee(self):
@@ -166,8 +180,9 @@ class LeaveApplicationTestCase(APITestCase):
             employee=self.employee, leave_type=leave_type
         )
         leave_application = LeaveApplicationFactory(
-            leave_type=leave_type, approver=self.approver, employee=self.employee,
+            leave_type=leave_type, employee=self.employee,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-submit",
@@ -186,10 +201,10 @@ class LeaveApplicationTestCase(APITestCase):
         )
         leave_application = LeaveApplicationFactory(
             leave_type=leave_type,
-            approver=self.approver,
             employee=self.employee,
             status=LeaveApplication.STATUS_CANCELLED,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-submit",
@@ -216,17 +231,17 @@ class LeaveApplicationTestCase(APITestCase):
         )
 
     def test_approve_leave_application(self):
-        self.client.force_authenticate(user=self.approver.user)
+        self.client.force_authenticate(user=self.approver1.user)
         leave_type = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=leave_type
         )
         leave_application = LeaveApplicationFactory(
             leave_type=leave_type,
-            approver=self.approver,
             employee=self.employee,
             status=LeaveApplication.STATUS_SUBMITTED,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-approve",
@@ -238,14 +253,15 @@ class LeaveApplicationTestCase(APITestCase):
         self.assertEqual(leave_application.status, LeaveApplication.STATUS_APPROVED)
 
     def test_approve_leave_application_not_for_approval(self):
-        self.client.force_authenticate(user=self.approver.user)
+        self.client.force_authenticate(user=self.approver1.user)
         leave_type = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=leave_type
         )
         leave_application = LeaveApplicationFactory(
-            leave_type=leave_type, approver=self.approver, employee=self.employee,
+            leave_type=leave_type, employee=self.employee,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-approve",
@@ -272,17 +288,17 @@ class LeaveApplicationTestCase(APITestCase):
         )
 
     def test_decline_leave_application(self):
-        self.client.force_authenticate(user=self.approver.user)
+        self.client.force_authenticate(user=self.approver1.user)
         leave_type = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=leave_type
         )
         leave_application = LeaveApplicationFactory(
             leave_type=leave_type,
-            approver=self.approver,
             employee=self.employee,
             status=LeaveApplication.STATUS_SUBMITTED,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-decline",
@@ -294,17 +310,17 @@ class LeaveApplicationTestCase(APITestCase):
         self.assertEqual(leave_application.status, LeaveApplication.STATUS_DECLINED)
 
     def test_decline_leave_application_not_for_decline(self):
-        self.client.force_authenticate(user=self.approver.user)
+        self.client.force_authenticate(user=self.approver1.user)
         leave_type = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=leave_type
         )
         leave_application = LeaveApplicationFactory(
             leave_type=leave_type,
-            approver=self.approver,
             employee=self.employee,
             status=LeaveApplication.STATUS_APPROVED,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-decline",
@@ -323,10 +339,10 @@ class LeaveApplicationTestCase(APITestCase):
         )
         leave_application = LeaveApplicationFactory(
             leave_type=leave_type,
-            approver=self.approver,
             employee=self.employee,
             status=LeaveApplication.STATUS_SUBMITTED,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-cancel",
@@ -345,10 +361,10 @@ class LeaveApplicationTestCase(APITestCase):
         )
         leave_application = LeaveApplicationFactory(
             leave_type=leave_type,
-            approver=self.approver,
             employee=self.employee,
             status=LeaveApplication.STATUS_APPROVED,
         )
+        leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-cancel",

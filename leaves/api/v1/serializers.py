@@ -29,7 +29,9 @@ class LeaveAllocationSerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 
 class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    approver = NestedField(EmployeeSerializer, accept_pk=True)
+    approvers = NestedField(
+        EmployeeSerializer, many=True, create_ops=["add"], update_ops=["add", "remove"]
+    )
     leave_type = NestedField(LeaveTypeSerializer, accept_pk=True)
     employee = NestedField(EmployeeSerializer, accept_pk=True)
 
@@ -52,7 +54,7 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
             to_date = attrs.get("to_date", self.instance.to_date)
 
         if from_date > to_date:
-            raise serializers.ValidationError(_("End date must be after start date"))
+            raise serializers.ValidationError(_("End date must be after start date."))
 
         leave_allocations = employee.leave_allocations.active().filter(
             leave_type=leave_type,
@@ -61,5 +63,5 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
             to_date__gte=to_date,
         )
         if not leave_allocations:
-            raise serializers.ValidationError(_("Insufficient Leave Allocation"))
+            raise serializers.ValidationError(_("You don't have enough leaves."))
         return super().validate(attrs)

@@ -21,7 +21,7 @@ from leaves.models import (
     LeaveApplication,
     LeaveType,
 )
-from .permissions import LeaveApplicationPermission
+from .permissions import LeaveApplicationApproverPermission
 
 
 class LeaveTypeViewSet(viewsets.ModelViewSet):
@@ -58,13 +58,12 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     filter_class = LeaveApplicationFilter
     filter_backends = (filters.DjangoFilterBackend,)
     http_method_names = ["get", "post", "head", "put", "patch"]
-    permission_classes = (LeaveApplicationPermission,)
 
     @action(detail=True, url_path="submit", methods=["post"])
     def submit(self, request, pk=None):
-        for_submission_status = (LeaveApplication.STATUS_DRAFT,)
+        # for_submission_status = (LeaveApplication.STATUS_DRAFT,)
         application = self.get_object()
-        if application.status in for_submission_status:
+        if application.status in application.for_submission_status:
             application.status = LeaveApplication.STATUS_SUBMITTED
             application.save()
             serializer = self.get_serializer(application)
@@ -77,12 +76,14 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        detail=True, url_path="approve", methods=["post"],
+        detail=True,
+        url_path="approve",
+        methods=["post"],
+        permission_classes=[LeaveApplicationApproverPermission],
     )
     def approve(self, request, pk=None):
-        for_approval_status = (LeaveApplication.STATUS_SUBMITTED,)
         application = self.get_object()
-        if application.status in for_approval_status:
+        if application.status in application.for_approval_status:
             allocation = application.employee.leave_allocations.active().get(
                 leave_type=application.leave_type
             )
@@ -99,12 +100,14 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        detail=True, url_path="decline", methods=["post"],
+        detail=True,
+        url_path="decline",
+        methods=["post"],
+        permission_classes=[LeaveApplicationApproverPermission],
     )
     def decline(self, request, pk=None):
-        for_decline_status = (LeaveApplication.STATUS_SUBMITTED,)
         application = self.get_object()
-        if application.status in for_decline_status:
+        if application.status in application.for_decline_status:
             application.status = LeaveApplication.STATUS_DECLINED
             application.save()
             serializer = self.get_serializer(application)
@@ -118,12 +121,8 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path="cancel", methods=["post"])
     def cancel(self, request, pk=None):
-        for_cancel_status = (
-            LeaveApplication.STATUS_DRAFT,
-            LeaveApplication.STATUS_SUBMITTED,
-        )
         application = self.get_object()
-        if application.status in for_cancel_status:
+        if application.status in application.for_cancellation_status:
             application.status = LeaveApplication.STATUS_CANCELLED
             application.save()
             serializer = self.get_serializer(application)

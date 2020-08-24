@@ -37,7 +37,7 @@ class LeaveAllocationFilter(FilterSet):
 
 class LeaveApplicationFilter(FilterSet):
     employee = filters.CharFilter(method="employee_search", label="employee")
-    approver = filters.CharFilter(method="approver_search", label="approver")
+    approvers = filters.CharFilter(method="approver_search", label="approvers")
 
     class Meta:
         model = LeaveApplication
@@ -57,9 +57,9 @@ class LeaveApplicationFilter(FilterSet):
 
     def approver_search(self, queryset, name, value):
         return queryset.filter(
-            Q(approver__user__email__icontains=value)
-            | Q(approver__user__first_name__icontains=value)
-            | Q(approver__user__middle_name__icontains=value)
-            | Q(approver__user__last_name__icontains=value)
-            | Q(approver__nickname__icontains=value)
+            Q(approvers__user__email__icontains=value)
+            | Q(approvers__user__first_name__icontains=value)
+            | Q(approvers__user__middle_name__icontains=value)
+            | Q(approvers__user__last_name__icontains=value)
+            | Q(approvers__nickname__icontains=value)
         )
