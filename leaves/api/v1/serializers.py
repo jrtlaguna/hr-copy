@@ -1,6 +1,7 @@
 from django_restql.fields import NestedField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
+from django.utils import timezone
 from rest_framework import serializers
 
 from django.utils.translation import ugettext_lazy as _
@@ -10,6 +11,7 @@ from leaves.models import (
     LeaveAllocation,
     LeaveApplication,
     LeaveType,
+    Holiday,
 )
 
 
@@ -65,3 +67,14 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
         if not leave_allocations:
             raise serializers.ValidationError(_("You don't have enough leaves."))
         return super().validate(attrs)
+
+
+class HolidaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Holiday
+        fields = "__all__"
+
+    def validate_date(self, value):
+        if value < timezone.now().date():
+            raise serializers.ValidationError("Invalid Date, it has already passed")
+        return value
