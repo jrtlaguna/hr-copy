@@ -1,10 +1,6 @@
 from django.contrib import admin
 
-from leaves.models import (
-    LeaveAllocation,
-    LeaveApplication,
-    LeaveType,
-)
+from leaves.models import LeaveAllocation, LeaveApplication, LeaveType, Holiday
 
 
 @admin.register(LeaveAllocation)
@@ -91,4 +87,14 @@ class LeaveTypeAdmin(admin.ModelAdmin):
         "created",
         "modified",
     )
+    search_fields = ("name",)
+
+
+@admin.register(Holiday)
+class HolidayAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "date",
+    )
+    list_filter = ("is_no_work_no_pay",)
     search_fields = ("name",)
