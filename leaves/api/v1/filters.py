@@ -2,11 +2,7 @@ from django_filters import FilterSet, filters
 
 from django.db.models import Q
 
-from leaves.models import (
-    LeaveAllocation,
-    LeaveApplication,
-    LeaveType,
-)
+from leaves.models import LeaveAllocation, LeaveApplication, LeaveType, Holiday
 
 
 class LeaveTypeFilter(FilterSet):
@@ -63,3 +59,23 @@ class LeaveApplicationFilter(FilterSet):
             | Q(approvers__user__last_name__icontains=value)
             | Q(approvers__nickname__icontains=value)
         )
+
+
+class HolidayFilter(FilterSet):
+    name = filters.CharFilter(method="holiday_search", label="name")
+    start_date = filters.DateFilter(field_name="date", lookup_expr=("gt"),)
+    end_date = filters.DateFilter(field_name="date", lookup_expr=("lt"),)
+    date_range = filters.DateRangeFilter(field_name="date")
+    is_no_work_no_pay = filters.BooleanFilter(
+        field_name="is_no_work_no_pay", label="is no work no pay"
+    )
+    pay_percentage = filters.NumberFilter(
+        field_name="pay_percentage", label="pay percentage"
+    )
+
+    def holiday_search(self, queryset, name, value):
+        return queryset.filter(Q(name__icontains=value))
+
+    class Meta:
+        model = Holiday
+        fields = []
