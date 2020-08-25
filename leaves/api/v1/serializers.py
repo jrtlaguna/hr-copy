@@ -47,7 +47,7 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
         from_date = attrs.get("from_date")
         to_date = attrs.get("to_date")
 
-        if self.partial:
+        if self.instance:
             employee = attrs.get("employee", self.instance.employee)
             leave_type = attrs.get("leave_type", self.instance.leave_type)
             from_date = attrs.get("from_date", self.instance.from_date)

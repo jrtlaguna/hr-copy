@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -152,6 +154,37 @@ class LeaveApplicationTestCase(APITestCase):
         self.assertEqual(
             self.leave_application.leave_type.id,
             response.data[0].get("leave_type").get("id"),
+        )
+
+    def test_put_leave_application(self):
+        new_leave_type = LeaveTypeFactory()
+        leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=new_leave_type
+        )
+        data = {
+            "approvers": {},
+            "employee": self.leave_application.employee.id,
+            "leave_type": new_leave_type.id,
+            "from_date": "2020-08-12",
+            "to_date": "2020-08-15",
+            "reason": "Out of town.",
+        }
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(
+            reverse(
+                "leaves-v1:leave-applications-detail",
+                kwargs={"pk": self.leave_application.id},
+            ),
+            data=data,
+            format="json",
+        )
+        self.leave_application.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.leave_application.leave_type, new_leave_type)
+        self.assertEqual(self.leave_application.reason, data.get("reason"))
+        self.assertEqual(
+            self.leave_application.from_date,
+            datetime.strptime(data.get("from_date"), "%Y-%m-%d").date(),
         )
 
     def test_patch_leave_application(self):
