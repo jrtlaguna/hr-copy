@@ -1,7 +1,7 @@
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from django.db.models import F
@@ -79,7 +79,7 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
         detail=True,
         url_path="approve",
         methods=["post"],
-        permission_classes=[LeaveApplicationApproverPermission],
+        permission_classes=[IsAuthenticated, LeaveApplicationApproverPermission],
     )
     def approve(self, request, pk=None):
         application = self.get_object()
@@ -103,7 +103,7 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
         detail=True,
         url_path="decline",
         methods=["post"],
-        permission_classes=[LeaveApplicationApproverPermission],
+        permission_classes=[IsAuthenticated, LeaveApplicationApproverPermission],
     )
     def decline(self, request, pk=None):
         application = self.get_object()
