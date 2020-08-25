@@ -11,24 +11,23 @@ from employees.models import Employee
 class LeaveApplication(TimeStampedModel):
 
     STATUS_DRAFT = "draft"
-    STATUS_OPEN = "open"
+    STATUS_SUBMITTED = "submitted"
     STATUS_APPROVED = "approved"
     STATUS_DECLINED = "declined"
     STATUS_CANCELLED = "cancelled"
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, "draft"),
-        (STATUS_OPEN, "open"),
+        (STATUS_SUBMITTED, "submitted"),
         (STATUS_APPROVED, "approved"),
         (STATUS_DECLINED, "declined"),
         (STATUS_CANCELLED, "cancelled"),
     )
 
-    approver = models.ForeignKey(
+    approvers = models.ManyToManyField(
         "employees.employee",
         verbose_name=_("Approver"),
         related_name="approver_leave_applications",
-        on_delete=models.PROTECT,
     )
     employee = models.ForeignKey(
         "employees.employee",
@@ -56,6 +55,29 @@ class LeaveApplication(TimeStampedModel):
         verbose_name = _("Leave Application")
         verbose_name_plural = _("Leave Applications")
 
+    @property
+    def for_submission_status(self):
+        status = [self.STATUS_DRAFT]
+        return status
+
+    @property
+    def for_approval_status(self):
+        status = [self.STATUS_SUBMITTED]
+        return status
+
+    @property
+    def for_decline_status(self):
+        status = [self.STATUS_SUBMITTED]
+        return status
+
+    @property
+    def for_cancellation_status(self):
+        status = (
+            LeaveApplication.STATUS_DRAFT,
+            LeaveApplication.STATUS_SUBMITTED,
+        )
+        return status
+
 
 class LeaveType(TimeStampedModel):
     name = models.CharField(_("Name"), max_length=50,)
@@ -73,11 +95,16 @@ class LeaveType(TimeStampedModel):
         verbose_name_plural = _("Leave Types")
 
 
+class LeaveAllocationManager(models.Manager):
+    def active(self):
+        return super().get_queryset().filter(is_active=True)
+
+
 class LeaveAllocation(TimeStampedModel):
     employee = models.ForeignKey(
         "employees.employee",
         verbose_name=_("Employee"),
-        related_name="leave_allocation",
+        related_name="leave_allocations",
         on_delete=models.PROTECT,
     )
     leave_type = models.ForeignKey(
@@ -91,6 +118,7 @@ class LeaveAllocation(TimeStampedModel):
     to_date = models.DateField(_("To Date"),)
     count = models.IntegerField(_("Count"), validators=[MinValueValidator(0),],)
     notes = models.TextField(_("Notes"), **OPTIONAL)
+    objects = LeaveAllocationManager()
 
     def __str__(self):
         return self.employee.user.get_full_name()
@@ -98,3 +126,4 @@ class LeaveAllocation(TimeStampedModel):
     class Meta:
         verbose_name = _("Leave Allocation")
         verbose_name_plural = _("Leave Allocations")
+

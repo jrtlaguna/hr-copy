@@ -6,6 +6,7 @@ from rest_framework.test import APIRequestFactory, APITestCase, force_authentica
 
 from django.urls import reverse
 
+from employees.tests.factories import EmployeeFactory
 from leaves.api.v1.serializers import LeaveAllocationSerializer, LeaveTypeSerializer
 from leaves.tests.factories import LeaveAllocationFactory, LeaveTypeFactory
 from users.tests.factories import UserFactory
@@ -13,7 +14,7 @@ from users.tests.factories import UserFactory
 
 class LeaveTypeSerializerTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory()
+        self.user = UserFactory(is_staff=True)
         self.leave_type = LeaveTypeFactory()
 
         self.client.force_authenticate(user=self.user)
@@ -28,9 +29,12 @@ class LeaveTypeSerializerTestCase(APITestCase):
 
 class LeaveAllocationSerializerTestCase(APITestCase):
     def setUp(self):
-        self.leave_allocation = LeaveAllocationFactory()
-        self.employee = self.leave_allocation.employee
-        self.user = self.employee.user
+        self.user = UserFactory(is_staff=True)
+        self.employee = EmployeeFactory()
+        self.leave_type = LeaveTypeFactory()
+        self.leave_allocation = LeaveAllocationFactory(
+            employee=self.employee, leave_type=self.leave_type
+        )
 
         factory = APIRequestFactory()
         request = factory.get("/")

@@ -38,8 +38,8 @@ class LeaveAllocationAdmin(admin.ModelAdmin):
 
 @admin.register(LeaveApplication)
 class LeaveApplicationAdmin(admin.ModelAdmin):
+    filter_horizontal = ("approvers",)
     list_display = (
-        "approver",
         "employee",
         "leave_type",
         "from_date",
@@ -51,12 +51,10 @@ class LeaveApplicationAdmin(admin.ModelAdmin):
         "status",
     )
     list_select_related = (
-        "approver",
         "employee",
         "leave_type",
     )
     raw_id_fields = (
-        "approver",
         "employee",
         "leave_type",
     )

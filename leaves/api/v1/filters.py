@@ -2,25 +2,28 @@ from django_filters import FilterSet, filters
 
 from django.db.models import Q
 
-from leaves.models import LeaveAllocation, LeaveType
+from leaves.models import (
+    LeaveAllocation,
+    LeaveApplication,
+    LeaveType,
+)
 
 
 class LeaveTypeFilter(FilterSet):
-    search = filters.CharFilter(method="_multi_search", label="name")
-    is_active = filters.BooleanFilter(field_name="is_active", label="is active")
-
-    def _multi_search(self, queryset, name, value):
-        return queryset.filter(Q(name__icontains=value))
-
     class Meta:
         model = LeaveType
-        fields = []
+        fields = ["name", "is_active"]
 
 
 class LeaveAllocationFilter(FilterSet):
-    is_active = filters.BooleanFilter(field_name="is_active", label="is active")
-    name = filters.CharFilter(method="employee_search", label="name")
-    leave_type = filters.CharFilter(method="leave_type_search", label="type")
+    employee = filters.CharFilter(method="employee_search", label="employee")
+
+    class Meta:
+        model = LeaveAllocation
+        fields = [
+            "is_active",
+            "leave_type",
+        ]
 
     def employee_search(self, queryset, name, value):
         return queryset.filter(
@@ -31,9 +34,32 @@ class LeaveAllocationFilter(FilterSet):
             | Q(employee__nickname__icontains=value)
         )
 
-    def leave_type_search(self, queryset, name, value):
-        return queryset.filter(Q(leave_type__name__icontains=value))
+
+class LeaveApplicationFilter(FilterSet):
+    employee = filters.CharFilter(method="employee_search", label="employee")
+    approvers = filters.CharFilter(method="approver_search", label="approvers")
 
     class Meta:
-        model = LeaveAllocation
-        fields = []
+        model = LeaveApplication
+        fields = [
+            "leave_type",
+            "status",
+        ]
+
+    def employee_search(self, queryset, name, value):
+        return queryset.filter(
+            Q(employee__user__email__icontains=value)
+            | Q(employee__user__first_name__icontains=value)
+            | Q(employee__user__middle_name__icontains=value)
+            | Q(employee__user__last_name__icontains=value)
+            | Q(employee__nickname__icontains=value)
+        )
+
+    def approver_search(self, queryset, name, value):
+        return queryset.filter(
+            Q(approvers__user__email__icontains=value)
+            | Q(approvers__user__first_name__icontains=value)
+            | Q(approvers__user__middle_name__icontains=value)
+            | Q(approvers__user__last_name__icontains=value)
+            | Q(approvers__nickname__icontains=value)
+        )

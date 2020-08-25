@@ -1,4 +1,4 @@
-from allauth.account.adapter import get_adapter, DefaultAccountAdapter
+from allauth.account.adapter import DefaultAccountAdapter
 
 
 class CustomAccountAdapter(DefaultAccountAdapter):

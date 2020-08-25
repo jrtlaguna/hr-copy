@@ -10,6 +10,9 @@ router.register(
     r"allocations", viewsets.LeaveAllocationViewSet, basename="leave-allocations"
 )
 router.register(r"types", viewsets.LeaveTypeViewSet, basename="leave-types")
+router.register(
+    r"applications", viewsets.LeaveApplicationViewSet, basename="leave-applications"
+)
 
 
 urlpatterns = [
