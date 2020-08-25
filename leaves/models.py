@@ -127,3 +127,9 @@ class LeaveAllocation(TimeStampedModel):
         verbose_name = _("Leave Allocation")
         verbose_name_plural = _("Leave Allocations")
 
+
+class Holiday(TimeStampedModel):
+    name = models.CharField(_("Name"), max_length=100, unique=True)
+    date = models.DateField(_("Date"),)
+    is_no_work_no_pay = models.BooleanField(_("Is No Work No Pay"), default=True)
+    pay_percentage = models.FloatField(_("Pay Percentage"))
