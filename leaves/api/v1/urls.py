@@ -13,7 +13,7 @@ router.register(r"types", viewsets.LeaveTypeViewSet, basename="leave-types")
 router.register(
     r"applications", viewsets.LeaveApplicationViewSet, basename="leave-applications"
 )
-router.register(r"holidays", viewsets.HolidayViewSet, basename="leave-holidays")
+router.register(r"holidays", viewsets.HolidayViewSet, basename="holidays")
 
 
 urlpatterns = [

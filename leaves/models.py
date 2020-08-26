@@ -133,3 +133,10 @@ class Holiday(TimeStampedModel):
     date = models.DateField(_("Date"),)
     is_no_work_no_pay = models.BooleanField(_("Is No Work No Pay"), default=True)
     pay_percentage = models.FloatField(_("Pay Percentage"))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("Holiday")
+        verbose_name_plural = _("Holidays")

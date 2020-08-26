@@ -69,7 +69,7 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
         return super().validate(attrs)
 
 
-class HolidaySerializer(serializers.ModelSerializer):
+class HolidaySerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Holiday
         fields = "__all__"

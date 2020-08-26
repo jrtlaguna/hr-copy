@@ -62,19 +62,10 @@ class LeaveApplicationFilter(FilterSet):
 
 
 class HolidayFilter(FilterSet):
-    name = filters.CharFilter(method="holiday_search", label="name")
-    start_date = filters.DateFilter(field_name="date", lookup_expr=("gt"),)
-    end_date = filters.DateFilter(field_name="date", lookup_expr=("lt"),)
+    name = filters.CharFilter(
+        field_name="name", lookup_expr=("icontains"), label="name"
+    )
     date_range = filters.DateRangeFilter(field_name="date")
-    is_no_work_no_pay = filters.BooleanFilter(
-        field_name="is_no_work_no_pay", label="is no work no pay"
-    )
-    pay_percentage = filters.NumberFilter(
-        field_name="pay_percentage", label="pay percentage"
-    )
-
-    def holiday_search(self, queryset, name, value):
-        return queryset.filter(Q(name__icontains=value))
 
     class Meta:
         model = Holiday
