@@ -14,6 +14,7 @@ router.register(
     r"applications", viewsets.LeaveApplicationViewSet, basename="leave-applications"
 )
 router.register(r"holidays", viewsets.HolidayViewSet, basename="holidays")
+router.register(r"holiday-types", viewsets.HolidayTypeViewSet, basename="holiday-types")
 
 
 urlpatterns = [
