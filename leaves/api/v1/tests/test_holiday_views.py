@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from leaves.models import Holiday
 from leaves.tests.factories import HolidayFactory, HolidayTypeFactory
 from users.tests.factories import UserFactory
 
@@ -32,10 +33,12 @@ class HolidayTestCase(APITestCase):
         }
 
         self.client.force_authenticate(user=self.user)
+        holiday_count = Holiday.objects.count()
         response = self.client.post(
             reverse("leaves-v1:holidays-list"), data=data, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(holiday_count + 1, Holiday.objects.count())
 
     def test_get_holiday_detail(self):
         self.client.force_authenticate(user=self.user)
@@ -57,18 +60,6 @@ class HolidayTestCase(APITestCase):
             self.holiday.type.id, response.data[0].get("type").get("id"),
         )
 
-    def test_holiday_invalid_date(self):
-        data = {
-            "type": self.type.id,
-            "name": "Test holiday 1",
-            "date": "2020-8-25",
-        }
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(
-            reverse("leaves-v1:holidays-list"), data=data, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_patch_holiday_unauthorized(self):
         data = {"name": "New Name"}
         self.client.force_authenticate(user=None)
@@ -79,6 +70,7 @@ class HolidayTestCase(APITestCase):
         )
         self.holiday.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotEqual(self.holiday.name, "New Name")
 
     def test_patch_holiday(self):
         data = {"name": "New Name"}
@@ -92,16 +84,20 @@ class HolidayTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.holiday.name, "New Name")
 
-    def test_archive_unauthorized(self):
+    def test_delete_unauthorized(self):
         self.client.force_authenticate(user=None)
         response = self.client.delete(
             reverse("leaves-v1:holidays-detail", kwargs={"pk": self.holiday.id},)
         )
+        holiday_count = Holiday.objects.count()
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(holiday_count, 1)
 
-    def test_archive_holiday(self):
+    def test_delete_holiday(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
             reverse("leaves-v1:holidays-detail", kwargs={"pk": self.holiday.id},)
         )
+        holiday_count = Holiday.objects.count()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(holiday_count, 0)

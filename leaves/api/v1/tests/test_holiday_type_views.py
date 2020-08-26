@@ -31,10 +31,12 @@ class HolidayTypeTestCase(APITestCase):
         }
 
         self.client.force_authenticate(user=self.user)
+        holiday_type_count = HolidayType.objects.count()
         response = self.client.post(
             reverse("leaves-v1:holiday-types-list"), data=data, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(holiday_type_count + 1, HolidayType.objects.count())
 
     def test_get_holiday_type_detail(self):
         self.client.force_authenticate(user=self.user)
@@ -57,6 +59,7 @@ class HolidayTypeTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotEqual(self.holiday_type.pay_percentage, 0.7)
 
     def test_put_holiday_type(self):
         data = {
@@ -75,7 +78,7 @@ class HolidayTypeTestCase(APITestCase):
         self.holiday_type.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("pay_percentage"), 0.7)
-        self.assertEqual(response.data.get("is_no_work_no_pay"), False)
+        self.assertFalse(response.data.get("is_no_work_no_pay"))
 
     def test_patch_holiday_type(self):
         data = {
@@ -91,15 +94,15 @@ class HolidayTypeTestCase(APITestCase):
         )
         self.holiday_type.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get("is_no_work_no_pay"), False)
+        self.assertFalse(response.data.get("is_no_work_no_pay"))
 
-    def test_archive_holiday_type(self):
+    def test_delete_holiday_type(self):
         self.client.force_authenticate(user=self.user)
+        holiday_type_amount = HolidayType.objects.count()
         response = self.client.delete(
             reverse(
                 "leaves-v1:holiday-types-detail", kwargs={"pk": self.holiday_type.id}
             )
         )
-        holiday_type_amount = HolidayType.objects.count()
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(holiday_type_amount, 0)
+        self.assertNotEqual(holiday_type_amount, 0)
