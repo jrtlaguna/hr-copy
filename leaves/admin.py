@@ -92,9 +92,5 @@ class LeaveTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Holiday)
 class HolidayAdmin(admin.ModelAdmin):
-    list_display = (
-        "name",
-        "date",
-    )
-    list_filter = ("is_no_work_no_pay",)
+    list_display = ("name", "date", "holiday_type")
     search_fields = ("name",)
