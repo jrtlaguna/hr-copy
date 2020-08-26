@@ -98,11 +98,11 @@ class HolidayTypeTestCase(APITestCase):
 
     def test_delete_holiday_type(self):
         self.client.force_authenticate(user=self.user)
-        holiday_type_amount = HolidayType.objects.count()
         response = self.client.delete(
             reverse(
                 "leaves-v1:holiday-types-detail", kwargs={"pk": self.holiday_type.id}
             )
         )
+        holiday_type_count = HolidayType.objects.count()
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertNotEqual(holiday_type_amount, 0)
+        self.assertEqual(holiday_type_count, 0)
