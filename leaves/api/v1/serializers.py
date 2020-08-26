@@ -12,6 +12,7 @@ from leaves.models import (
     LeaveApplication,
     LeaveType,
     Holiday,
+    HolidayType,
 )
 
 
@@ -69,7 +70,15 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
         return super().validate(attrs)
 
 
+class HolidayTypeSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = HolidayType
+        fields = "__all__"
+
+
 class HolidaySerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    holiday_type = serializers.StringRelatedField()
+
     class Meta:
         model = Holiday
         fields = "__all__"
@@ -78,3 +87,7 @@ class HolidaySerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         if value < timezone.now().date():
             raise serializers.ValidationError("Invalid Date, it has already passed")
         return value
+
+
+class HolidayDetailSerializer(HolidaySerializer):
+    holiday_type = HolidayTypeSerializer
