@@ -131,10 +131,10 @@ class LeaveAllocation(TimeStampedModel):
 class Holiday(TimeStampedModel):
     name = models.CharField(_("Name"), max_length=100, unique=True)
     date = models.DateField(_("Date"),)
-    holiday_type = models.ForeignKey(
+    type = models.ForeignKey(
         "leaves.HolidayType",
         verbose_name=_("Holiday Type"),
-        related_name="holiday",
+        related_name="holidays",
         on_delete=models.PROTECT,
     )
 
@@ -147,6 +147,7 @@ class Holiday(TimeStampedModel):
 
 
 class HolidayType(TimeStampedModel):
+    name = models.CharField(_("Name"), max_length=100, unique=True)
     is_no_work_no_pay = models.BooleanField(_("Is No Work No Pay"), default=True)
     pay_percentage = models.FloatField(_("Pay Percentage"))
 

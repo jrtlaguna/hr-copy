@@ -19,7 +19,6 @@ from leaves.api.v1.serializers import (
     LeaveTypeSerializer,
     HolidaySerializer,
     HolidayTypeSerializer,
-    HolidayDetailSerializer,
 )
 from leaves.models import (
     LeaveAllocation,
@@ -149,11 +148,6 @@ class HolidayViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     permission_classes = (IsAdminUser,)
 
-    def get_serializer_class(self):
-        if self.action in ["list", "retrieve"]:
-            return HolidayDetailSerializer
-        return HolidaySerializer
-
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.date < timezone.now().date():
@@ -163,11 +157,6 @@ class HolidayViewSet(viewsets.ModelViewSet):
             )
         instance.delete()
         return Response(status=status.HTTP_200_OK)
-
-    def perform_create(self, serializer):
-        holiday_type_id = serializer.initial_data.get("holiday_type")
-        holiday_type = HolidayType.objects.get(id=holiday_type_id)
-        serializer.save(holiday_type=holiday_type)
 
 
 class HolidayTypeViewSet(viewsets.ModelViewSet):

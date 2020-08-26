@@ -1,11 +1,11 @@
 from django.contrib import admin
 
 from leaves.models import (
+    Holiday,
+    HolidayType,
     LeaveAllocation,
     LeaveApplication,
     LeaveType,
-    Holiday,
-    HolidayType,
 )
 
 
@@ -98,7 +98,7 @@ class LeaveTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Holiday)
 class HolidayAdmin(admin.ModelAdmin):
-    list_display = ("name", "date", "holiday_type")
+    list_display = ("name", "date", "type")
     search_fields = ("name",)
 
 

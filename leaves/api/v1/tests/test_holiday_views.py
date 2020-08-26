@@ -11,8 +11,8 @@ from users.tests.factories import UserFactory
 class HolidayTestCase(APITestCase):
     def setUp(self):
         self.user = UserFactory(is_staff=True)
-        self.holiday_type = HolidayTypeFactory()
-        self.holiday = HolidayFactory(holiday_type=self.holiday_type)
+        self.type = HolidayTypeFactory()
+        self.holiday = HolidayFactory(type=self.type)
 
     def test_get_holiday_list_unauthorized(self):
         self.client.force_authenticate(user=None)
@@ -26,7 +26,7 @@ class HolidayTestCase(APITestCase):
 
     def test_create_holiday(self):
         data = {
-            "holiday_type": self.holiday_type.id,
+            "type": self.type.id,
             "name": "Test holiday 1",
             "date": timezone.now().date(),
         }
@@ -45,22 +45,21 @@ class HolidayTestCase(APITestCase):
         self.assertTrue(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_search_holiday_by_holiday_type(self):
+    def test_search_holiday_by_type(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:holidays-list"),
-            {"holiday_type": self.holiday.holiday_type.id},
+            reverse("leaves-v1:holidays-list"), {"type": self.holiday.type.id},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
         self.assertEqual(
-            self.holiday.holiday_type.id, response.data[0].get("holiday_type"),
+            self.holiday.type.id, response.data[0].get("type").get("id"),
         )
 
     def test_holiday_invalid_date(self):
         data = {
-            "holiday_type": self.holiday_type.id,
+            "type": self.type.id,
             "name": "Test holiday 1",
             "date": "2020-8-25",
         }

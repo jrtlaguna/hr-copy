@@ -2,7 +2,7 @@ from django_filters import FilterSet, filters
 
 from django.db.models import Q
 
-from leaves.models import LeaveAllocation, LeaveApplication, LeaveType, Holiday
+from leaves.models import Holiday, LeaveAllocation, LeaveApplication, LeaveType
 
 
 class LeaveTypeFilter(FilterSet):

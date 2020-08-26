@@ -3,11 +3,12 @@ from rest_framework.test import APITestCase
 
 from django.urls import reverse
 
+from leaves.models import HolidayType
 from leaves.tests.factories import HolidayTypeFactory
 from users.tests.factories import UserFactory
 
 
-class LeaveTypeTestCase(APITestCase):
+class HolidayTypeTestCase(APITestCase):
     def setUp(self):
         self.user = UserFactory(is_staff=True)
         self.holiday_type = HolidayTypeFactory()
@@ -24,6 +25,7 @@ class LeaveTypeTestCase(APITestCase):
 
     def test_create_holiday_type(self):
         data = {
+            "name": "Test Name",
             "is_no_work_no_pay": True,
             "pay_percentage": 0.3,
         }
@@ -58,6 +60,7 @@ class LeaveTypeTestCase(APITestCase):
 
     def test_put_holiday_type(self):
         data = {
+            "name": "Test Name",
             "is_no_work_no_pay": False,
             "pay_percentage": 0.7,
         }
@@ -97,4 +100,6 @@ class LeaveTypeTestCase(APITestCase):
                 "leaves-v1:holiday-types-detail", kwargs={"pk": self.holiday_type.id}
             )
         )
+        holiday_type_amount = HolidayType.objects.count()
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(holiday_type_amount, 0)
