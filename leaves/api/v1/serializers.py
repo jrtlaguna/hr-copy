@@ -1,7 +1,6 @@
 from django_restql.fields import NestedField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
-
 from rest_framework import serializers
 
 from django.utils import timezone

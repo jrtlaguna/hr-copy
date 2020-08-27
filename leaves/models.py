@@ -152,7 +152,7 @@ class HolidayType(TimeStampedModel):
     pay_percentage = models.FloatField(_("Pay Percentage"))
 
     def __str__(self):
-        return f"{self.pay_percentage} - No work no pay: {self.is_no_work_no_pay}"
+        return self.name
 
     class Meta:
         verbose_name = _("Holiday Type")

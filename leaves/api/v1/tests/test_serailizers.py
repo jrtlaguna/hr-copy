@@ -7,7 +7,11 @@ from rest_framework.test import APIRequestFactory, APITestCase, force_authentica
 from django.urls import reverse
 
 from employees.tests.factories import EmployeeFactory
-from leaves.api.v1.serializers import LeaveAllocationSerializer, LeaveTypeSerializer
+from leaves.api.v1.serializers import (
+    HolidaySerializer,
+    LeaveAllocationSerializer,
+    LeaveTypeSerializer,
+)
 from leaves.tests.factories import (
     HolidayFactory,
     HolidayTypeFactory,
@@ -62,6 +66,7 @@ class HolidaySerializerTestCase(APITestCase):
         self.user = UserFactory(is_staff=True)
         self.type = HolidayTypeFactory()
         self.holiday = HolidayFactory(type=self.type)
+        self.client.force_authenticate(user=self.user)
 
     def test_holiday_invalid_date(self):
         data = {
@@ -69,8 +74,5 @@ class HolidaySerializerTestCase(APITestCase):
             "name": "Test holiday 1",
             "date": "2020-8-25",
         }
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(
-            reverse("leaves-v1:holidays-list"), data=data, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        holiday_serializer_data = HolidaySerializer(data=data)
+        self.assertFalse(holiday_serializer_data.is_valid())
