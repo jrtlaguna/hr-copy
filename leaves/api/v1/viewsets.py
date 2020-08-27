@@ -5,18 +5,24 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from django.db.models import F
+from django.utils import timezone
 
 from leaves.api.v1.filters import (
+    HolidayFilter,
     LeaveAllocationFilter,
     LeaveApplicationFilter,
     LeaveTypeFilter,
 )
 from leaves.api.v1.serializers import (
+    HolidaySerializer,
+    HolidayTypeSerializer,
     LeaveAllocationSerializer,
     LeaveApplicationSerializer,
     LeaveTypeSerializer,
 )
 from leaves.models import (
+    Holiday,
+    HolidayType,
     LeaveAllocation,
     LeaveApplication,
     LeaveType,
@@ -133,3 +139,27 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class HolidayViewSet(viewsets.ModelViewSet):
+    queryset = Holiday.objects.all()
+    serializer_class = HolidaySerializer
+    filter_class = HolidayFilter
+    filter_backends = (filters.DjangoFilterBackend,)
+    permission_classes = (IsAdminUser,)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.date < timezone.now().date():
+            return Response(
+                {"message": "Can not delete holidays that have already passed"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        instance.delete()
+        return Response(status=status.HTTP_200_OK)
+
+
+class HolidayTypeViewSet(viewsets.ModelViewSet):
+    queryset = HolidayType.objects.all()
+    serializer_class = HolidayTypeSerializer
+    permission_classes = (IsAdminUser,)

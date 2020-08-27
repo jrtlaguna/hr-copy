@@ -2,11 +2,7 @@ from django_filters import FilterSet, filters
 
 from django.db.models import Q
 
-from leaves.models import (
-    LeaveAllocation,
-    LeaveApplication,
-    LeaveType,
-)
+from leaves.models import Holiday, LeaveAllocation, LeaveApplication, LeaveType
 
 
 class LeaveTypeFilter(FilterSet):
@@ -63,3 +59,14 @@ class LeaveApplicationFilter(FilterSet):
             | Q(approvers__user__last_name__icontains=value)
             | Q(approvers__nickname__icontains=value)
         )
+
+
+class HolidayFilter(FilterSet):
+    name = filters.CharFilter(
+        field_name="name", lookup_expr=("icontains"), label="name"
+    )
+    date_range = filters.DateRangeFilter(field_name="date")
+
+    class Meta:
+        model = Holiday
+        fields = []

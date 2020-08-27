@@ -7,8 +7,17 @@ from rest_framework.test import APIRequestFactory, APITestCase, force_authentica
 from django.urls import reverse
 
 from employees.tests.factories import EmployeeFactory
-from leaves.api.v1.serializers import LeaveAllocationSerializer, LeaveTypeSerializer
-from leaves.tests.factories import LeaveAllocationFactory, LeaveTypeFactory
+from leaves.api.v1.serializers import (
+    HolidaySerializer,
+    LeaveAllocationSerializer,
+    LeaveTypeSerializer,
+)
+from leaves.tests.factories import (
+    HolidayFactory,
+    HolidayTypeFactory,
+    LeaveAllocationFactory,
+    LeaveTypeFactory,
+)
 from users.tests.factories import UserFactory
 
 
@@ -50,3 +59,17 @@ class LeaveAllocationSerializerTestCase(APITestCase):
         ).data
         leave_allocation_serializer_data = [leave_allocation_serializer_data]
         self.assertEqual(self.response_data, leave_allocation_serializer_data)
+
+
+class HolidaySerializerTestCase(APITestCase):
+    def setUp(self):
+        self.type = HolidayTypeFactory()
+
+    def test_holiday_invalid_date(self):
+        data = {
+            "type": self.type.id,
+            "name": "Test holiday 1",
+            "date": "2020-8-25",
+        }
+        holiday_serializer_data = HolidaySerializer(data=data)
+        self.assertFalse(holiday_serializer_data.is_valid())

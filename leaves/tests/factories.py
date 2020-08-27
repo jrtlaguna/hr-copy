@@ -1,6 +1,10 @@
 import factory
 
+from django.utils import timezone
+
 from leaves.models import (
+    Holiday,
+    HolidayType,
     LeaveAllocation,
     LeaveApplication,
     LeaveType,
@@ -34,3 +38,20 @@ class LeaveApplicationFactory(factory.django.DjangoModelFactory):
 
     from_date = "2020-08-17"
     to_date = "2020-08-20"
+
+
+class HolidayFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Holiday
+
+    name = "Fake Holiday"
+    date = timezone.now().date()
+
+
+class HolidayTypeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = HolidayType
+
+    name = "Special Non-working Holiday"
+    is_no_work_no_pay = True
+    pay_percentage = 0.3

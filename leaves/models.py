@@ -127,3 +127,33 @@ class LeaveAllocation(TimeStampedModel):
         verbose_name = _("Leave Allocation")
         verbose_name_plural = _("Leave Allocations")
 
+
+class Holiday(TimeStampedModel):
+    name = models.CharField(_("Name"), max_length=100)
+    date = models.DateField(_("Date"),)
+    type = models.ForeignKey(
+        "leaves.HolidayType",
+        verbose_name=_("Holiday Type"),
+        related_name="holidays",
+        on_delete=models.PROTECT,
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("Holiday")
+        verbose_name_plural = _("Holidays")
+
+
+class HolidayType(TimeStampedModel):
+    name = models.CharField(_("Name"), max_length=100, unique=True)
+    is_no_work_no_pay = models.BooleanField(_("Is No Work No Pay"), default=True)
+    pay_percentage = models.FloatField(_("Pay Percentage"))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("Holiday Type")
+        verbose_name_plural = _("Holiday Types")
