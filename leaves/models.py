@@ -129,7 +129,7 @@ class LeaveAllocation(TimeStampedModel):
 
 
 class Holiday(TimeStampedModel):
-    name = models.CharField(_("Name"), max_length=100, unique=True)
+    name = models.CharField(_("Name"), max_length=100)
     date = models.DateField(_("Date"),)
     type = models.ForeignKey(
         "leaves.HolidayType",

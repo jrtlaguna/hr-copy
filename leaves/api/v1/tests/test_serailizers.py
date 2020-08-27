@@ -63,10 +63,7 @@ class LeaveAllocationSerializerTestCase(APITestCase):
 
 class HolidaySerializerTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory(is_staff=True)
         self.type = HolidayTypeFactory()
-        self.holiday = HolidayFactory(type=self.type)
-        self.client.force_authenticate(user=self.user)
 
     def test_holiday_invalid_date(self):
         data = {
