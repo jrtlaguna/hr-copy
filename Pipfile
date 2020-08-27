@@ -17,6 +17,7 @@ django-restql = "*"
 drf-writable-nested = "*"
 factory-boy = "*"
 psycopg2-binary = "*"
+drf-yasg = "*"
 
 [requires]
 python_version = "3.8"
