@@ -37,6 +37,7 @@ urlpatterns = [
         r"api/",
         include(
             [
+                path(r"docs/", schema_view.with_ui("swagger", cache_timeout=0), name="api_docs"),
                 path(r"", include("django.contrib.auth.urls")),
                 path(r"auth/", include(("rest_auth.urls")),),
                 path(
@@ -56,7 +57,4 @@ urlpatterns = [
             ],
         ),
     ),
-    path(r"swagger(?P<format>\.json|\.yaml)", schema_view.without_ui(cache_timeout=0), name="schema-json"),
-    path(r"swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
-    path(r"redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
