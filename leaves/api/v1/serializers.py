@@ -84,7 +84,10 @@ class HolidaySerializer(DynamicFieldsMixin, NestedModelSerializer):
         fields = "__all__"
 
     def validate_date(self, value):
+        if self.instance and self.instance.date < value:
+            raise serializers.ValidationError(
+                "Cannot update the date of a holiday that has already passed."
+            )
         if value < timezone.now().date():
             raise serializers.ValidationError("Invalid Date, it has already passed")
         return value
-
