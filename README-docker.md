@@ -26,17 +26,7 @@ Clone this repo and type in `$ cd mugna-hr`
 
 1. Copy `.env.example` to `.env` and customize.
 
-2. Comment out `DATABASE_URL`, Docker will handle the database connection.
-
-3. Set `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` to `mugna_hr`
-
-4. Set `DB_HOST` to `postgres`
-
-## Configure hr/settings.py File
-
-1. Go to `hr/settings.py`
-
-2. Go to the DATABASES dictionary and set `HOST` to `db`
+2. Set DATABASE_URL to `postgres://mugna_hr:mugna_hr@db:5432/mugna_hr`
 
 ## Build the Docker Image
 
