@@ -46,10 +46,6 @@ GRANT ALL PRIVILEGES ON DATABASE mugna_hr TO mugna_hr;
 
 2. Set `DATABASE_URL` to `POSTGRES_URL=postgres://mugna_hr:mugna_hr@localhost:5432/mugna_hr`.
 
-3. Set `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` to `mugna_hr`
-
-4. Set `DB_HOST` to `postgres`
-
 ### Getting Started
 
 1. Run `pipenv shell`

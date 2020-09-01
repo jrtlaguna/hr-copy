@@ -26,7 +26,7 @@ Clone this repo and type in `$ cd mugna-hr`
 
 1. Copy `.env.example` to `.env` and customize.
 
-2. Set DATABASE_URL to `postgres://mugna_hr:mugna_hr@db:5432/mugna_hr`
+2. Set `DATABASE_URL` to `postgres://mugna_hr:mugna_hr@db:5432/mugna_hr`.
 
 ## Build the Docker Image
 
