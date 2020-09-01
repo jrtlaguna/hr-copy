@@ -19,6 +19,7 @@ factory-boy = "*"
 psycopg2-binary = "*"
 drf-yasg = "*"
 whitenoise = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.8"

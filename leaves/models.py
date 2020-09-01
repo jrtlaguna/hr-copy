@@ -1,3 +1,6 @@
+import numpy as np
+from datetime import timedelta
+
 from django_extensions.db.models import TimeStampedModel
 
 from django.core.validators import MinValueValidator
@@ -54,6 +57,13 @@ class LeaveApplication(TimeStampedModel):
     class Meta:
         verbose_name = _("Leave Application")
         verbose_name_plural = _("Leave Applications")
+
+    def get_business_days_count(self):
+        start_date = self.from_date
+        end_date = self.to_date + timedelta(1)
+        holidays = Holiday.objects.values_list("date", flat=True)
+        days = np.busday_count(start_date, end_date, holidays=holidays)
+        return days.item()
 
     @property
     def for_submission_status(self):
@@ -124,6 +134,7 @@ class LeaveAllocation(TimeStampedModel):
         return self.employee.user.get_full_name()
 
     class Meta:
+        unique_together = [['employee', 'leave_type']]
         verbose_name = _("Leave Allocation")
         verbose_name_plural = _("Leave Allocations")
 

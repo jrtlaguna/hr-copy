@@ -89,13 +89,15 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     )
     def approve(self, request, pk=None):
         application = self.get_object()
+        number_of_days = application.get_business_days_count()
         if application.status in application.for_approval_status:
             allocation = application.employee.leave_allocations.active().get(
                 leave_type=application.leave_type
             )
-            allocation.count = F("count") - 1
+            allocation.count = F("count") - number_of_days
             application.status = LeaveApplication.STATUS_APPROVED
             application.save()
+            allocation.save()
             serializer = self.get_serializer(application)
             return Response(serializer.data)
         return Response(

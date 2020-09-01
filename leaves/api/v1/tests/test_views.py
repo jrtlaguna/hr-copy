@@ -235,8 +235,9 @@ class LeaveAllocationTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_leave_allocation(self):
+        leave_type = LeaveTypeFactory()
         data = {
-            "leave_type": self.leave_type.id,
+            "leave_type": leave_type.id,
             "employee": self.employee.id,
             "from_date": "2020-01-01",
             "to_date": "2020-12-12",
@@ -598,6 +599,8 @@ class LeaveApplicationTestCase(APITestCase):
 
     def test_approve_leave_application(self):
         self.client.force_authenticate(user=self.approver1.user)
+        holiday_type = HolidayTypeFactory()
+        holidays = HolidayFactory(date="2020-08-31", type=holiday_type)
         leave_type = LeaveTypeFactory()
         leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=leave_type
@@ -606,8 +609,12 @@ class LeaveApplicationTestCase(APITestCase):
             leave_type=leave_type,
             employee=self.employee,
             status=LeaveApplication.STATUS_SUBMITTED,
+            from_date=datetime.strptime("2020-08-27", "%Y-%m-%d").date(),
+            to_date=datetime.strptime("2020-09-01", "%Y-%m-%d").date()
         )
         leave_application.approvers.add(self.approver1, self.approver2)
+        num_of_days = leave_application.get_business_days_count()
+        update_allocation_count = leave_allocation.count - num_of_days
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-approve",
@@ -615,7 +622,9 @@ class LeaveApplicationTestCase(APITestCase):
             )
         )
         leave_application.refresh_from_db()
+        leave_allocation.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(leave_allocation.count, update_allocation_count)
         self.assertEqual(leave_application.status, LeaveApplication.STATUS_APPROVED)
 
     def test_approve_leave_application_not_for_approval(self):
