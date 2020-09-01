@@ -18,6 +18,7 @@ drf-writable-nested = "*"
 factory-boy = "*"
 psycopg2-binary = "*"
 drf-yasg = "*"
+whitenoise = "*"
 
 [requires]
 python_version = "3.8"
