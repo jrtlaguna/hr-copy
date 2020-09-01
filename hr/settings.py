@@ -113,8 +113,8 @@ DATABASES = {
         "USER": "mugna_hr",
         "PASSWORD": "mugna_hr",
         # use db as HOST when youre using docker, else user localhost
-        "HOST": "db",
-        # "HOST": "localhost",
+        # "HOST": "db",
+        "HOST": "localhost",
         "PORT": "5432",
     }
 }
