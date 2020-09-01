@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  db:
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./postgres-data/postgres:/var/lib/postgresql/data:rw
+    ports:
+      - 5430:5432
+  app:
+    restart: always
+    build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/mugna/:rw
+    depends_on:
+      - db
+    env_file:
+      - .env
+    command: python manage.py runserver 0.0.0:8000
