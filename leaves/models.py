@@ -1,5 +1,5 @@
 import numpy as np
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django_extensions.db.models import TimeStampedModel
 
@@ -8,7 +8,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import OPTIONAL
-from employees.models import Employee
 
 
 class LeaveApplication(TimeStampedModel):
@@ -58,7 +57,8 @@ class LeaveApplication(TimeStampedModel):
         verbose_name = _("Leave Application")
         verbose_name_plural = _("Leave Applications")
 
-    def get_business_days_count(self):
+    @property
+    def business_days_count(self):
         start_date = self.from_date
         end_date = self.to_date + timedelta(1)
         holidays = Holiday.objects.values_list("date", flat=True)
@@ -87,6 +87,14 @@ class LeaveApplication(TimeStampedModel):
             LeaveApplication.STATUS_SUBMITTED,
         )
         return status
+
+    @staticmethod
+    def get_business_days(from_date: datetime, to_date: datetime) -> int:
+        start_date = from_date
+        end_date = to_date
+        holidays = Holiday.objects.values_list("date", flat=True)
+        days = np.busday_count(start_date, end_date, holidays=holidays)
+        return days.item()
 
 
 class LeaveType(TimeStampedModel):
@@ -134,7 +142,6 @@ class LeaveAllocation(TimeStampedModel):
         return self.employee.user.get_full_name()
 
     class Meta:
-        unique_together = [['employee', 'leave_type']]
         verbose_name = _("Leave Allocation")
         verbose_name_plural = _("Leave Allocations")
 

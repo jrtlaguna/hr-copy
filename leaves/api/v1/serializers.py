@@ -3,6 +3,7 @@ from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
 from rest_framework import serializers
 
+from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -58,14 +59,18 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
 
         if from_date > to_date:
             raise serializers.ValidationError(_("End date must be after start date."))
-
+        
+        leave_business_days_count = LeaveApplication.get_business_days(from_date, to_date)
         leave_allocations = employee.leave_allocations.active().filter(
             leave_type=leave_type,
             count__gt=0,
             from_date__lte=from_date,
             to_date__gte=to_date,
         )
+        
         if not leave_allocations:
+            raise serializers.ValidationError(_("You don't have enough leaves."))
+        elif leave_allocations and leave_business_days_count > leave_allocations.values("leave_type").aggregate(total=Sum('count')).get("total"):
             raise serializers.ValidationError(_("You don't have enough leaves."))
         return super().validate(attrs)
 

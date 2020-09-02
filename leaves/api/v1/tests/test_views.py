@@ -403,8 +403,11 @@ class LeaveApplicationTestCase(APITestCase):
         approver2 = EmployeeFactory()
         leave_type1 = LeaveTypeFactory()
         leave_type2 = LeaveTypeFactory()
-        leave_allocation = LeaveAllocationFactory(
+        leave_allocation1 = LeaveAllocationFactory(
             employee=employee, leave_type=leave_type1
+        )
+        leave_allocation2 = LeaveAllocationFactory(
+            employee=employee, leave_type=leave_type2, count=1
         )
         data = {
             "approvers": {"add": [approver1.id, approver2.id]},
@@ -609,12 +612,10 @@ class LeaveApplicationTestCase(APITestCase):
             leave_type=leave_type,
             employee=self.employee,
             status=LeaveApplication.STATUS_SUBMITTED,
-            from_date=datetime.strptime("2020-08-27", "%Y-%m-%d").date(),
-            to_date=datetime.strptime("2020-09-01", "%Y-%m-%d").date()
+            from_date="2020-08-27",
+            to_date="2020-09-01"
         )
         leave_application.approvers.add(self.approver1, self.approver2)
-        num_of_days = leave_application.get_business_days_count()
-        update_allocation_count = leave_allocation.count - num_of_days
         response = self.client.post(
             reverse(
                 "leaves-v1:leave-applications-approve",
@@ -622,9 +623,7 @@ class LeaveApplicationTestCase(APITestCase):
             )
         )
         leave_application.refresh_from_db()
-        leave_allocation.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(leave_allocation.count, update_allocation_count)
         self.assertEqual(leave_application.status, LeaveApplication.STATUS_APPROVED)
 
     def test_approve_leave_application_not_for_approval(self):

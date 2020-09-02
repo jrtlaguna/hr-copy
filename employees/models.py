@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import OPTIONAL
+from leaves.models import LeaveApplication
 
 
 class Employee(models.Model):
@@ -34,6 +35,25 @@ class Employee(models.Model):
     class Meta:
         verbose_name = _("Employee")
         verbose_name_plural = _("Employees")
+
+    @property
+    def leave_allocations_count(self):
+        # Returns a list of objects having a total 
+        # and remaining allocation count for each leave_type 
+        
+        allocations = [
+            allocation 
+            for allocation in self.leave_allocations.active().values("leave_type").annotate(total=models.Sum("count"))
+        ]
+        approved_leaves = self.employee_leave_applications.filter(status=LeaveApplication.STATUS_APPROVED)
+        
+        for allocation in allocations:
+            allocation["remaining"] = allocation.get("total")
+            leave_type_id = allocation.get("leave_type")
+            _approved_leaves_application_type = approved_leaves.filter(leave_type=leave_type_id)
+            for leave_application in _approved_leaves_application_type:
+                allocation["remaining"] -= leave_application.business_days_count
+        return allocations
 
 
 class EmergencyContact(models.Model):

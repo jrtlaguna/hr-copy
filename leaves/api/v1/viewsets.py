@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from django.db.models import F
+from django.db.models import F, Sum
 from django.utils import timezone
 
 from leaves.api.v1.filters import (
@@ -89,17 +89,26 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     )
     def approve(self, request, pk=None):
         application = self.get_object()
-        number_of_days = application.get_business_days_count()
+        leave_number_of_days = application.business_days_count
         if application.status in application.for_approval_status:
-            allocation = application.employee.leave_allocations.active().get(
-                leave_type=application.leave_type
-            )
-            allocation.count = F("count") - number_of_days
-            application.status = LeaveApplication.STATUS_APPROVED
-            application.save()
-            allocation.save()
-            serializer = self.get_serializer(application)
-            return Response(serializer.data)
+
+            employee = application.employee
+            allocations = employee.leave_allocations_count
+            
+            for allocation in allocations:
+                if allocation.get("leave_type") == application.leave_type.id:
+                    if allocation.get("remaining") > leave_number_of_days:
+                        application.status = LeaveApplication.STATUS_APPROVED
+                        application.save()
+                        serializer = self.get_serializer(application)
+                        return Response(serializer.data)
+                    else:
+                        return Response(
+                            {
+                                "detail": f"Could not approve leave application, not enough leaves."
+                            },
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
         return Response(
             {
                 "detail": f"Could not approve leave application with status {application.status}"
