@@ -50,28 +50,24 @@ class LeaveApplicationSerializer(DynamicFieldsMixin, NestedModelSerializer):
         leave_type = attrs.get("leave_type")
         from_date = attrs.get("from_date")
         to_date = attrs.get("to_date")
-
+        
         if self.instance:
             employee = attrs.get("employee", self.instance.employee)
             leave_type = attrs.get("leave_type", self.instance.leave_type)
             from_date = attrs.get("from_date", self.instance.from_date)
             to_date = attrs.get("to_date", self.instance.to_date)
+            leave_business_days_count = self.instance.business_days_count(from_date=from_date, to_date=to_date)
+        else:
+            leave_business_days_count = LeaveApplication().business_days_count(from_date=from_date, to_date=to_date)
 
         if from_date > to_date:
             raise serializers.ValidationError(_("End date must be after start date."))
         
-        leave_business_days_count = LeaveApplication.get_business_days(from_date, to_date)
-        leave_allocations = employee.leave_allocations.active().filter(
-            leave_type=leave_type,
-            count__gt=0,
-            from_date__lte=from_date,
-            to_date__gte=to_date,
-        )
+        remaining = employee.get_remaining_leaves(leave_type)
+     
+        if remaining < leave_business_days_count:
+            raise serializers.ValidationError(_("You don't have enough leaves."))
         
-        if not leave_allocations:
-            raise serializers.ValidationError(_("You don't have enough leaves."))
-        elif leave_allocations and leave_business_days_count > leave_allocations.values("leave_type").aggregate(total=Sum('count')).get("total"):
-            raise serializers.ValidationError(_("You don't have enough leaves."))
         return super().validate(attrs)
 
 

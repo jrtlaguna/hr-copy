@@ -89,32 +89,20 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     )
     def approve(self, request, pk=None):
         application = self.get_object()
-        leave_number_of_days = application.business_days_count
+        leave_number_of_days = application.business_days_count()
+        msg = f"Could not approve leave application with status {application.status}"
+        
         if application.status in application.for_approval_status:
+            remaining = application.employee.get_remaining_leaves(application.leave_type)
+            if remaining > leave_number_of_days:
+                application.status = LeaveApplication.STATUS_APPROVED
+                application.save()
+                serializer = self.get_serializer(application)
+                return Response(serializer.data)
 
-            employee = application.employee
-            allocations = employee.leave_allocations_count
-            
-            for allocation in allocations:
-                if allocation.get("leave_type") == application.leave_type.id:
-                    if allocation.get("remaining") > leave_number_of_days:
-                        application.status = LeaveApplication.STATUS_APPROVED
-                        application.save()
-                        serializer = self.get_serializer(application)
-                        return Response(serializer.data)
-                    else:
-                        return Response(
-                            {
-                                "detail": f"Could not approve leave application, not enough leaves."
-                            },
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-        return Response(
-            {
-                "detail": f"Could not approve leave application with status {application.status}"
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+            msg = f"Employee does not have enough leaves." if remaining < leave_number_of_days else msg
+
+        return Response({"detail": msg}, status=status.HTTP_400_BAD_REQUEST,)
 
     @action(
         detail=True,

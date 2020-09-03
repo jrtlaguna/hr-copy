@@ -57,13 +57,6 @@ class LeaveApplication(TimeStampedModel):
         verbose_name = _("Leave Application")
         verbose_name_plural = _("Leave Applications")
 
-    @property
-    def business_days_count(self):
-        start_date = self.from_date
-        end_date = self.to_date + timedelta(1)
-        holidays = Holiday.objects.values_list("date", flat=True)
-        days = np.busday_count(start_date, end_date, holidays=holidays)
-        return days.item()
 
     @property
     def for_submission_status(self):
@@ -88,10 +81,11 @@ class LeaveApplication(TimeStampedModel):
         )
         return status
 
-    @staticmethod
-    def get_business_days(from_date: datetime, to_date: datetime) -> int:
-        start_date = from_date
-        end_date = to_date
+    def business_days_count(self, **kwargs):
+        from_date = kwargs.get("from_date")
+        to_date = kwargs.get("to_date")
+        start_date = from_date or self.from_date
+        end_date = to_date or self.to_date + timedelta(1)
         holidays = Holiday.objects.values_list("date", flat=True)
         days = np.busday_count(start_date, end_date, holidays=holidays)
         return days.item()

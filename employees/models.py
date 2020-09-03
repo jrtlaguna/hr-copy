@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -38,22 +40,27 @@ class Employee(models.Model):
 
     @property
     def leave_allocations_count(self):
-        # Returns a list of objects having a total 
-        # and remaining allocation count for each leave_type 
-        
-        allocations = [
-            allocation 
-            for allocation in self.leave_allocations.active().values("leave_type").annotate(total=models.Sum("count"))
-        ]
-        approved_leaves = self.employee_leave_applications.filter(status=LeaveApplication.STATUS_APPROVED)
-        
-        for allocation in allocations:
-            allocation["remaining"] = allocation.get("total")
-            leave_type_id = allocation.get("leave_type")
-            _approved_leaves_application_type = approved_leaves.filter(leave_type=leave_type_id)
-            for leave_application in _approved_leaves_application_type:
-                allocation["remaining"] -= leave_application.business_days_count
+        allocations = self.leave_allocations.active().values("leave_type").annotate(total=models.Sum("count"))
         return allocations
+
+    @property
+    def approved_leaves(self):
+        year = datetime.today().date().year
+        approved_leaves = self.employee_leave_applications.filter(
+                status=LeaveApplication.STATUS_APPROVED,
+                from_date__year=year,
+                to_date__year=year
+            )
+        return approved_leaves
+
+    def get_remaining_leaves(self, leave_type):
+        allocations = self.leave_allocations_count.filter(leave_type=leave_type)
+        approved_leaves = self.approved_leaves.filter(leave_type=leave_type)
+        total_approved = 0
+        for leave in approved_leaves:
+            total_approved += leave.business_days_count()
+        remaining = allocations[0].get("total") - total_approved if allocations else 0
+        return remaining
 
 
 class EmergencyContact(models.Model):
