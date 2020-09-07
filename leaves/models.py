@@ -5,6 +5,7 @@ from django_extensions.db.models import TimeStampedModel
 
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import OPTIONAL
@@ -45,6 +46,7 @@ class LeaveApplication(TimeStampedModel):
     )
     from_date = models.DateField(_("From Date"),)
     to_date = models.DateField(_("To Date"),)
+    count = models.IntegerField(_("Count"), validators=[MinValueValidator(0),], default=0)
     reason = models.TextField(_("Reason"),)
     status = models.CharField(
         _("Status"), choices=STATUS_CHOICES, default=STATUS_DRAFT, max_length=50,
@@ -81,15 +83,6 @@ class LeaveApplication(TimeStampedModel):
         )
         return status
 
-    def business_days_count(self, **kwargs):
-        from_date = kwargs.get("from_date")
-        to_date = kwargs.get("to_date")
-        start_date = from_date or self.from_date
-        end_date = to_date or self.to_date + timedelta(1)
-        holidays = Holiday.objects.values_list("date", flat=True)
-        days = np.busday_count(start_date, end_date, holidays=holidays)
-        return days.item()
-
 
 class LeaveType(TimeStampedModel):
     name = models.CharField(_("Name"), max_length=50,)
@@ -109,7 +102,12 @@ class LeaveType(TimeStampedModel):
 
 class LeaveAllocationManager(models.Manager):
     def active(self):
-        return super().get_queryset().filter(is_active=True)
+        year = timezone.now().date().year
+        return self.get_queryset().filter(
+            is_active=True,
+            from_date__year=year,
+            to_date__year=year
+            )
 
 
 class LeaveAllocation(TimeStampedModel):
@@ -156,6 +154,14 @@ class Holiday(TimeStampedModel):
     class Meta:
         verbose_name = _("Holiday")
         verbose_name_plural = _("Holidays")
+
+    @classmethod
+    def business_days_count(cls, from_date: datetime, to_date: datetime) -> int:
+        start_date = from_date 
+        end_date = to_date + timedelta(1)
+        holidays = cls.objects.values_list("date", flat=True)
+        days = np.busday_count(start_date, end_date, holidays=holidays)
+        return days.item()
 
 
 class HolidayType(TimeStampedModel):

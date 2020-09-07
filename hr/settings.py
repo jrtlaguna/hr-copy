@@ -59,9 +59,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "employees",
-    "leaves",
-    "users",
+    "employees.apps.EmployeesConfig",
+    "leaves.apps.LeavesConfig",
+    "users.apps.UsersConfig",
 ]
 
 SITE_ID = 1

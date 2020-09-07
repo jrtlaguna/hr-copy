@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -375,6 +375,7 @@ class LeaveApplicationTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_leave_application(self):
+        
         employee = EmployeeFactory()
         approver1 = EmployeeFactory()
         approver2 = EmployeeFactory()
@@ -382,19 +383,21 @@ class LeaveApplicationTestCase(APITestCase):
         leave_allocation = LeaveAllocationFactory(
             employee=employee, leave_type=leave_type
         )
+        
         data = {
             "approvers": {"add": [approver1.id, approver2.id]},
             "employee": employee.id,
             "leave_type": leave_type.id,
-            "from_date": "2020-08-08",
-            "to_date": "2020-08-15",
+            "from_date": timezone.now().date(),
+            "to_date": timezone.now().date() + timedelta(3),
             "reason": "Vacation",
         }
-
+        number_of_leave_days = Holiday.business_days_count(data.get("from_date"), data.get("to_date"))
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
             reverse("leaves-v1:leave-applications-list"), data=data, format="json"
         )
+        self.assertEqual(number_of_leave_days, response.data.get("count"))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_leave_application_insufficient_allocation(self):
@@ -529,7 +532,10 @@ class LeaveApplicationTestCase(APITestCase):
         leave_allocation = LeaveAllocationFactory(
             employee=self.employee, leave_type=leave_type
         )
-        data = {"leave_type": leave_type.id}
+        data = {
+            "leave_type": leave_type.id,
+            "to_date":  timezone.now().date() + timedelta(4)
+        }
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(
             reverse(
@@ -540,8 +546,10 @@ class LeaveApplicationTestCase(APITestCase):
             format="json",
         )
         self.leave_application.refresh_from_db()
+        number_of_leave_days = Holiday.business_days_count(self.leave_application.from_date, self.leave_application.to_date)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.leave_application.leave_type, leave_type)
+        self.assertEqual(self.leave_application.count, number_of_leave_days)
 
     def test_submit_leave_application(self):
         self.client.force_authenticate(user=self.user)
@@ -611,9 +619,7 @@ class LeaveApplicationTestCase(APITestCase):
         leave_application = LeaveApplicationFactory(
             leave_type=leave_type,
             employee=self.employee,
-            status=LeaveApplication.STATUS_SUBMITTED,
-            from_date="2020-08-27",
-            to_date="2020-09-01"
+            status=LeaveApplication.STATUS_SUBMITTED
         )
         leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(

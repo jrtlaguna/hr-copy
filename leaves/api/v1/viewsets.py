@@ -89,20 +89,22 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     )
     def approve(self, request, pk=None):
         application = self.get_object()
-        leave_number_of_days = application.business_days_count()
-        msg = f"Could not approve leave application with status {application.status}"
-        
-        if application.status in application.for_approval_status:
-            remaining = application.employee.get_remaining_leaves(application.leave_type)
-            if remaining > leave_number_of_days:
-                application.status = LeaveApplication.STATUS_APPROVED
-                application.save()
-                serializer = self.get_serializer(application)
-                return Response(serializer.data)
-
-            msg = f"Employee does not have enough leaves." if remaining < leave_number_of_days else msg
-
-        return Response({"detail": msg}, status=status.HTTP_400_BAD_REQUEST,)
+        allocations = application.employee.remaining_leave_allocations.filter(leave_type=application.leave_type)
+        leave_number_of_days = Holiday.business_days_count(application.from_date, application.to_date)
+        if application.status not in application.for_approval_status:
+            return Response(
+                    {"detail": "Could not approve leave application with status {application.status}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        if allocations.first().get("remaining") < leave_number_of_days:
+            return Response(
+                    {"detail": "Employee does not have enough leaves."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        application.status = LeaveApplication.STATUS_APPROVED
+        application.save()
+        serializer = self.get_serializer(application)
+        return Response(serializer.data)
 
     @action(
         detail=True,

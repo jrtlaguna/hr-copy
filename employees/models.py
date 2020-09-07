@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.db import models
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import OPTIONAL
@@ -39,28 +41,25 @@ class Employee(models.Model):
         verbose_name_plural = _("Employees")
 
     @property
-    def leave_allocations_count(self):
-        allocations = self.leave_allocations.active().values("leave_type").annotate(total=models.Sum("count"))
-        return allocations
-
-    @property
-    def approved_leaves(self):
-        year = datetime.today().date().year
+    def remaining_leave_allocations(self):
+        year = timezone.now().date().year
         approved_leaves = self.employee_leave_applications.filter(
                 status=LeaveApplication.STATUS_APPROVED,
                 from_date__year=year,
                 to_date__year=year
+            ).values("leave_type").annotate(
+                total_approved=models.Sum("count")
             )
-        return approved_leaves
-
-    def get_remaining_leaves(self, leave_type):
-        allocations = self.leave_allocations_count.filter(leave_type=leave_type)
-        approved_leaves = self.approved_leaves.filter(leave_type=leave_type)
-        total_approved = 0
-        for leave in approved_leaves:
-            total_approved += leave.business_days_count()
-        remaining = allocations[0].get("total") - total_approved if allocations else 0
-        return remaining
+        approved_subquery = approved_leaves.filter(leave_type=models.OuterRef("leave_type"))
+        allocations = self.leave_allocations.active().values("leave_type").annotate(
+                total_allocation=models.Sum("count")
+            ).annotate(
+                total_approved=models.Subquery(approved_subquery.values("total_approved"), 
+                output_field=models.IntegerField())
+            ).annotate(
+                remaining=models.F("total_allocation") - Coalesce(models.F("total_approved"), 0)
+            )
+        return allocations
 
 
 class EmergencyContact(models.Model):
