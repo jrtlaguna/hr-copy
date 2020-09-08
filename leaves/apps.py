@@ -5,4 +5,4 @@ class LeavesConfig(AppConfig):
     name = 'leaves'
 
     def ready(self):
-        import leaves.api.v1.signals
+        from leaves import signals

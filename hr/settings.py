@@ -53,6 +53,7 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "django_restql",
     "drf_yasg",
+    "fieldsignals",
     "rest_auth",
     "rest_framework",
     "rest_framework.authtoken",
