@@ -1,7 +1,8 @@
 from fieldsignals import post_save_changed
 
-from leaves.models import Holiday, LeaveApplication
 from django.dispatch import receiver
+
+from leaves.models import Holiday, LeaveApplication
 
 
 @receiver(post_save_changed, sender=LeaveApplication)
