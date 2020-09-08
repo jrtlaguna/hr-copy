@@ -1,4 +1,5 @@
 import factory
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 
@@ -26,8 +27,8 @@ class LeaveAllocationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LeaveAllocation
 
-    from_date = "2020-01-01"
-    to_date = "2020-12-12"
+    from_date = datetime.strptime("2020-01-01", "%Y-%m-%d").date()
+    to_date = datetime.strptime("2020-12-31", "%Y-%m-%d").date()
     count = 7
     notes = "Leave Allocation"
 
@@ -36,8 +37,8 @@ class LeaveApplicationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LeaveApplication
 
-    from_date = "2020-08-17"
-    to_date = "2020-08-20"
+    from_date = timezone.now().date()
+    to_date = from_date + timedelta(2)
 
 
 class HolidayFactory(factory.django.DjangoModelFactory):

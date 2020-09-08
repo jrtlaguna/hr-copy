@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from django.db.models import F
+from django.db.models import F, Sum
 from django.utils import timezone
 
 from leaves.api.v1.filters import (
@@ -89,21 +89,22 @@ class LeaveApplicationViewSet(viewsets.ModelViewSet):
     )
     def approve(self, request, pk=None):
         application = self.get_object()
-        if application.status in application.for_approval_status:
-            allocation = application.employee.leave_allocations.active().get(
-                leave_type=application.leave_type
-            )
-            allocation.count = F("count") - 1
-            application.status = LeaveApplication.STATUS_APPROVED
-            application.save()
-            serializer = self.get_serializer(application)
-            return Response(serializer.data)
-        return Response(
-            {
-                "detail": f"Could not approve leave application with status {application.status}"
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        allocations = application.employee.remaining_leave_allocations.filter(leave_type=application.leave_type)
+        leave_number_of_days = Holiday.business_days_count(application.from_date, application.to_date)
+        if application.status not in application.for_approval_status:
+            return Response(
+                    {"detail": "Could not approve leave application with status {application.status}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        if allocations.first().get("remaining") < leave_number_of_days:
+            return Response(
+                    {"detail": "Employee does not have enough leaves."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        application.status = LeaveApplication.STATUS_APPROVED
+        application.save()
+        serializer = self.get_serializer(application)
+        return Response(serializer.data)
 
     @action(
         detail=True,

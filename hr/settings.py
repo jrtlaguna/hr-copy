@@ -53,15 +53,16 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "django_restql",
     "drf_yasg",
+    "fieldsignals",
     "rest_auth",
     "rest_framework",
     "rest_framework.authtoken",
 ]
 
 LOCAL_APPS = [
-    "employees",
-    "leaves",
-    "users",
+    "employees.apps.EmployeesConfig",
+    "leaves.apps.LeavesConfig",
+    "users.apps.UsersConfig",
 ]
 
 SITE_ID = 1
