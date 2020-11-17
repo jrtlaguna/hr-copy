@@ -1,7 +1,9 @@
 from django.contrib import admin
 
+from .forms import HolidayTemplateAdminForm
 from leaves.models import (
     Holiday,
+    HolidayTemplate,
     HolidayType,
     LeaveAllocation,
     LeaveApplication,
@@ -105,3 +107,17 @@ class HolidayAdmin(admin.ModelAdmin):
 @admin.register(HolidayType)
 class HolidayTypeAdmin(admin.ModelAdmin):
     list_display = ("pay_percentage", "is_no_work_no_pay", "modified")
+    search_fields = ("name",)
+
+
+@admin.register(HolidayTemplate)
+class HolidayTypeAdmin(admin.ModelAdmin):
+    form = HolidayTemplateAdminForm
+
+    list_display = ("name", "month", "type", "day", "modified",)
+    search_fields = ("name",)
+    readonly_fields = (
+        "created",
+        "modified",
+    )    
+    autocomplete_fields = ("type",)
