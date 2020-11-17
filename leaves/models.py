@@ -157,3 +157,17 @@ class HolidayType(TimeStampedModel):
     class Meta:
         verbose_name = _("Holiday Type")
         verbose_name_plural = _("Holiday Types")
+
+
+class HolidayTemplate(TimeStampedModel):
+    name = models.CharField(_("Name"), max_length=150, unique=True)
+    month = models.IntegerField(_("Month"),)
+    day = models.IntegerField(_("Day"),)
+    type = models.ForeignKey("leaves.HolidayType", verbose_name=_("Type"), related_name="holiday_templates", on_delete=models.CASCADE,)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = (_("Holiday Template"))
+        verbose_name_plural = (_("Holiday Templates"))
