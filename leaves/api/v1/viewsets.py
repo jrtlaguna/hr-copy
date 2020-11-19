@@ -168,9 +168,8 @@ class HolidayTypeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
 
 
-class HolidayTemplateViewSet(viewsets.ModelViewSet):
+class HolidayTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = HolidayTemplate.objects.all()
     serializer_class = HolidayTemplateSerializer
     filter_class = HolidayTemplateFilter
     filter_backends = (filters.DjangoFilterBackend,)
-    http_method_names = ["get"]
