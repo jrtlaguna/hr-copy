@@ -53,15 +53,16 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "django_restql",
     "drf_yasg",
+    "fieldsignals",
     "rest_auth",
     "rest_framework",
     "rest_framework.authtoken",
 ]
 
 LOCAL_APPS = [
-    "employees",
-    "leaves",
-    "users",
+    "employees.apps.EmployeesConfig",
+    "leaves.apps.LeavesConfig",
+    "users.apps.UsersConfig",
 ]
 
 SITE_ID = 1
@@ -69,6 +70,7 @@ INSTALLED_APPS += THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -109,9 +111,11 @@ WSGI_APPLICATION = "hr.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "name": "mugna_hr",
-        "user": "mugna_hr",
-        "password": "mugna_hr",
+        "NAME": "mugna_hr",
+        "USER": "mugna_hr",
+        "PASSWORD": "mugna_hr",
+        # use db as HOST when youre using docker, else user localhost
+        # "HOST": "db",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -128,9 +132,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
@@ -152,6 +162,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # AUTHENTICATION
 AUTH_USER_MODEL = "users.User"

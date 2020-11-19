@@ -18,6 +18,9 @@ drf-writable-nested = "*"
 factory-boy = "*"
 psycopg2-binary = "*"
 drf-yasg = "*"
+whitenoise = "*"
+numpy = "*"
+django-fieldsignals = "*"
 
 [requires]
 python_version = "3.8"

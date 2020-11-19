@@ -48,6 +48,7 @@ class LeaveApplicationAdmin(admin.ModelAdmin):
         "from_date",
         "to_date",
         "status",
+        "count",
     )
     list_filter = (
         "leave_type",
