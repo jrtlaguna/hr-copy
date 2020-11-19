@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from leaves.models import (
     Holiday,
+    HolidayTemplate,
     HolidayType,
     LeaveAllocation,
     LeaveApplication,
@@ -55,3 +56,12 @@ class HolidayTypeFactory(factory.django.DjangoModelFactory):
     name = "Special Non-working Holiday"
     is_no_work_no_pay = True
     pay_percentage = 0.3
+
+
+class HolidayTemplateFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = HolidayTemplate
+
+    name = "Christmas"
+    month = 12
+    day = 25
