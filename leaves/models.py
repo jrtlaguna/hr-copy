@@ -1,8 +1,11 @@
-from django_extensions.db.models import TimeStampedModel
+from calendar import monthrange
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from django_extensions.db.models import TimeStampedModel
 
 from core.models import OPTIONAL
 from employees.models import Employee
@@ -171,3 +174,28 @@ class HolidayTemplate(TimeStampedModel):
     class Meta:
         verbose_name = (_("Holiday Template"))
         verbose_name_plural = (_("Holiday Templates"))
+
+    def clean(self):
+        validations = {}
+
+        day = self.day
+        month = self.month
+        if month not in range(1, 13):
+            validations['month'] = ValidationError(
+                _('Month field out of range.'),
+                code='month-out-of-range',
+            )
+
+        # Need to raise validationerror here since monthrange will cause an error for wrong values
+        if validations:
+            raise ValidationError(validations)
+
+        month_days = monthrange(2020, month)[1]
+        if day not in range(1, month_days+1):
+            validations['day'] = ValidationError(
+                _('Day field out of range for month value.'),
+                code='day-out-of-range',
+            )
+
+        if validations:
+            raise ValidationError(validations)
