@@ -98,11 +98,7 @@ class HolidaySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 class HolidayTemplateSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     type = NestedField(HolidayTypeSerializer, accept_pk=True)
-    month_name = serializers.SerializerMethodField()
 
     class Meta:
         model = HolidayTemplate
         fields = "__all__"
-
-    def get_month_name(self, obj):
-        return month_name[obj.month]
