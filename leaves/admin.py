@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-from .forms import HolidayTemplateAdminForm
 from leaves.models import (
     Holiday,
     HolidayTemplate,
@@ -111,9 +110,7 @@ class HolidayTypeAdmin(admin.ModelAdmin):
 
 
 @admin.register(HolidayTemplate)
-class HolidayTypeAdmin(admin.ModelAdmin):
-    form = HolidayTemplateAdminForm
-
+class HolidayTemplateAdmin(admin.ModelAdmin):
     list_display = ("name", "month", "type", "day", "modified",)
     search_fields = ("name",)
     readonly_fields = (
