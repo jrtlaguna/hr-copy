@@ -13,6 +13,7 @@ from leaves.models import (
 )
 from leaves.tests.factories import (
     HolidayFactory,
+    HolidayTemplateFactory,
     HolidayTypeFactory,
     LeaveAllocationFactory,
     LeaveApplicationFactory,
@@ -55,7 +56,10 @@ class HolidayTestCase(APITestCase):
     def test_get_holiday_detail(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:holidays-detail", kwargs={"pk": self.holiday.id},)
+            reverse(
+                "leaves-v1:holidays-detail",
+                kwargs={"pk": self.holiday.id},
+            )
         )
         self.assertTrue(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -63,20 +67,25 @@ class HolidayTestCase(APITestCase):
     def test_search_holiday_by_type(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(
-            reverse("leaves-v1:holidays-list"), {"type": self.holiday.type.id},
+            reverse("leaves-v1:holidays-list"),
+            {"type": self.holiday.type.id},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
         self.assertEqual(
-            self.holiday.type.id, response.data[0].get("type").get("id"),
+            self.holiday.type.id,
+            response.data[0].get("type").get("id"),
         )
 
     def test_patch_holiday_unauthorized(self):
         data = {"name": "New Name"}
         self.client.force_authenticate(user=None)
         response = self.client.patch(
-            reverse("leaves-v1:holidays-detail", kwargs={"pk": self.holiday.id},),
+            reverse(
+                "leaves-v1:holidays-detail",
+                kwargs={"pk": self.holiday.id},
+            ),
             data=data,
             format="json",
         )
@@ -88,7 +97,10 @@ class HolidayTestCase(APITestCase):
         data = {"name": "New Name"}
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(
-            reverse("leaves-v1:holidays-detail", kwargs={"pk": self.holiday.id},),
+            reverse(
+                "leaves-v1:holidays-detail",
+                kwargs={"pk": self.holiday.id},
+            ),
             data=data,
             format="json",
         )
@@ -99,7 +111,10 @@ class HolidayTestCase(APITestCase):
     def test_delete_unauthorized(self):
         self.client.force_authenticate(user=None)
         response = self.client.delete(
-            reverse("leaves-v1:holidays-detail", kwargs={"pk": self.holiday.id},)
+            reverse(
+                "leaves-v1:holidays-detail",
+                kwargs={"pk": self.holiday.id},
+            )
         )
         holiday_count = Holiday.objects.count()
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -108,7 +123,10 @@ class HolidayTestCase(APITestCase):
     def test_delete_holiday(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
-            reverse("leaves-v1:holidays-detail", kwargs={"pk": self.holiday.id},)
+            reverse(
+                "leaves-v1:holidays-detail",
+                kwargs={"pk": self.holiday.id},
+            )
         )
         holiday_count = Holiday.objects.count()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -293,7 +311,8 @@ class LeaveAllocationTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
         self.assertIn(
-            self.employee.nickname, response.data[0].get("employee").values(),
+            self.employee.nickname,
+            response.data[0].get("employee").values(),
         )
 
     def test_patch_leave_allocation_unauthorized(self):
@@ -546,7 +565,8 @@ class LeaveApplicationTestCase(APITestCase):
             employee=self.employee, leave_type=leave_type
         )
         leave_application = LeaveApplicationFactory(
-            leave_type=leave_type, employee=self.employee,
+            leave_type=leave_type,
+            employee=self.employee,
         )
         leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
@@ -625,7 +645,8 @@ class LeaveApplicationTestCase(APITestCase):
             employee=self.employee, leave_type=leave_type
         )
         leave_application = LeaveApplicationFactory(
-            leave_type=leave_type, employee=self.employee,
+            leave_type=leave_type,
+            employee=self.employee,
         )
         leave_application.approvers.add(self.approver1, self.approver2)
         response = self.client.post(
@@ -842,3 +863,95 @@ class LeaveTypeTestCase(APITestCase):
         self.leave_type.refresh_from_db()
         self.assertEqual(self.leave_type.is_active, False)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class HolidayTemplateTestCase(APITestCase):
+    def setUp(self):
+        self.user = UserFactory(is_staff=True)
+        self.type = HolidayTypeFactory()
+        self.holiday_template = HolidayTemplateFactory(type=self.type)
+
+    def test_get_holiday_template_list_unauthorized(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get(reverse("leaves-v1:holiday-templates-list"))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_holiday_templates_list(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(reverse("leaves-v1:holiday-templates-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_holiday_template(self):
+        data = {
+            "type": self.type.id,
+            "name": "Test holiday template 1",
+            "month": 12,
+            "day": 25,
+        }
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(
+            reverse("leaves-v1:holiday-templates-list"), data=data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_holiday_template_detail(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(
+            reverse("leaves-v1:holiday-templates-list"),
+            {"type": self.holiday_template.type.id},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data)
+        self.assertEqual(
+            self.holiday_template.type.id,
+            response.data[0].get("type").get("id"),
+        )
+
+    def test_patch_holiday_template_unauthorized(self):
+        data = {"name": "New Name"}
+        self.client.force_authenticate(user=None)
+        response = self.client.patch(
+            reverse(
+                "leaves-v1:holiday-templates-detail",
+                kwargs={"pk": self.holiday_template.id},
+            ),
+            data=data,
+            format="json",
+        )
+        self.holiday_template.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotEqual(self.holiday_template.name, "New Name")
+
+    def test_patch_holiday_template(self):
+        data = {"name": "New Name"}
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(
+            reverse(
+                "leaves-v1:holiday-templates-detail",
+                kwargs={"pk": self.holiday_template.id},
+            ),
+            data=data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_template_unauthorized(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.delete(
+            reverse(
+                "leaves-v1:holiday-templates-detail",
+                kwargs={"pk": self.holiday_template.id},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_holiday_template(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(
+            reverse(
+                "leaves-v1:holiday-templates-detail",
+                kwargs={"pk": self.holiday_template.id},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

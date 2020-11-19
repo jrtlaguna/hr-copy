@@ -9,6 +9,7 @@ from django.urls import reverse
 from employees.tests.factories import EmployeeFactory
 from leaves.api.v1.serializers import (
     HolidaySerializer,
+    HolidayTemplateSerializer,
     LeaveAllocationSerializer,
     LeaveTypeSerializer,
 )
@@ -73,3 +74,18 @@ class HolidaySerializerTestCase(APITestCase):
         }
         holiday_serializer_data = HolidaySerializer(data=data)
         self.assertFalse(holiday_serializer_data.is_valid())
+
+
+class HolidayTemplateSerializerTestcase(APITestCase):
+    def setUp(self):
+        self.type = HolidayTypeFactory()
+
+    def test_invalid_holiday_template(self):
+        data = {
+            "type": self.type.id,
+            "name": "Holiday template 1",
+            "month": 13,
+            "day": "test",
+        }
+        holiday_template_serializer_data = HolidayTemplateSerializer(data=data)
+        self.assertFalse(holiday_template_serializer_data.is_valid())
