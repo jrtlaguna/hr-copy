@@ -1,12 +1,14 @@
+from calendar import monthrange
 import numpy as np
 from datetime import datetime, timedelta
 
-from django_extensions.db.models import TimeStampedModel
-
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
+from django_extensions.db.models import TimeStampedModel
 
 from core.models import OPTIONAL
 
@@ -175,3 +177,48 @@ class HolidayType(TimeStampedModel):
     class Meta:
         verbose_name = _("Holiday Type")
         verbose_name_plural = _("Holiday Types")
+
+
+class HolidayTemplate(TimeStampedModel):
+    name = models.CharField(_("Name"), max_length=150, unique=True)
+    month = models.IntegerField(
+        _("Month"),
+    )
+    day = models.IntegerField(
+        _("Day"),
+    )
+    type = models.ForeignKey(
+        "leaves.HolidayType",
+        verbose_name=_("Type"),
+        related_name="holiday_templates",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("Holiday Template")
+        verbose_name_plural = _("Holiday Templates")
+
+    def clean(self):
+        validations = {}
+
+        day = self.day
+        month = self.month
+        if month not in range(1, 13):
+            validations["month"] = ValidationError(
+                _("Month field out of range."),
+                code="month-out-of-range",
+            )
+
+        if "month" not in validations:
+            month_days = monthrange(2020, month)[1]
+            if day not in range(1, month_days + 1):
+                validations["day"] = ValidationError(
+                    _("Day field out of range for month value."),
+                    code="day-out-of-range",
+                )
+
+        if validations:
+            raise ValidationError(validations)

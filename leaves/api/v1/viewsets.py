@@ -9,12 +9,14 @@ from django.utils import timezone
 
 from leaves.api.v1.filters import (
     HolidayFilter,
+    HolidayTemplateFilter,
     LeaveAllocationFilter,
     LeaveApplicationFilter,
     LeaveTypeFilter,
 )
 from leaves.api.v1.serializers import (
     HolidaySerializer,
+    HolidayTemplateSerializer,
     HolidayTypeSerializer,
     LeaveAllocationSerializer,
     LeaveApplicationSerializer,
@@ -22,6 +24,7 @@ from leaves.api.v1.serializers import (
 )
 from leaves.models import (
     Holiday,
+    HolidayTemplate,
     HolidayType,
     LeaveAllocation,
     LeaveApplication,
@@ -164,3 +167,10 @@ class HolidayTypeViewSet(viewsets.ModelViewSet):
     queryset = HolidayType.objects.all()
     serializer_class = HolidayTypeSerializer
     permission_classes = (IsAdminUser,)
+
+
+class HolidayTemplateViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = HolidayTemplate.objects.all()
+    serializer_class = HolidayTemplateSerializer
+    filter_class = HolidayTemplateFilter
+    filter_backends = (filters.DjangoFilterBackend,)

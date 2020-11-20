@@ -1,3 +1,5 @@
+from calendar import month_name
+
 from django_restql.fields import NestedField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
@@ -10,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from employees.api.v1.serializers import EmployeeSerializer
 from leaves.models import (
     Holiday,
+    HolidayTemplate,
     HolidayType,
     LeaveAllocation,
     LeaveApplication,
@@ -86,3 +89,11 @@ class HolidaySerializer(DynamicFieldsMixin, NestedModelSerializer):
         if value < timezone.now().date():
             raise serializers.ValidationError("Invalid Date, it has already passed")
         return value
+
+
+class HolidayTemplateSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    type = NestedField(HolidayTypeSerializer, accept_pk=True)
+
+    class Meta:
+        model = HolidayTemplate
+        fields = "__all__"

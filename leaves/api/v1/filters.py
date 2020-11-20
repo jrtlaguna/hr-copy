@@ -2,7 +2,13 @@ from django_filters import FilterSet, filters
 
 from django.db.models import Q
 
-from leaves.models import Holiday, LeaveAllocation, LeaveApplication, LeaveType
+from leaves.models import (
+    Holiday,
+    HolidayTemplate,
+    LeaveAllocation,
+    LeaveApplication,
+    LeaveType,
+)
 
 
 class LeaveTypeFilter(FilterSet):
@@ -70,3 +76,15 @@ class HolidayFilter(FilterSet):
     class Meta:
         model = Holiday
         fields = []
+
+
+class HolidayTemplateFilter(FilterSet):
+    name = filters.CharFilter(
+        field_name="name", lookup_expr=("icontains"), label="name"
+    )
+
+    class Meta:
+        model = HolidayTemplate
+        fields = [
+            "name",
+        ]
