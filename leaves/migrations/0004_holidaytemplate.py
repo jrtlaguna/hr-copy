@@ -8,7 +8,7 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leaves', '0002_holiday_holidaytype'),
+        ('leaves', '0003_leaveapplication_count'),
     ]
 
     operations = [
