@@ -1,0 +1,42 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@4.1.2
+jobs:
+  build:
+    working_directory: ~/app
+    docker:
+      - image: circleci/python:3.8
+
+    steps:
+      # Step 1: obtain repo from GitHub
+      - checkout
+      # Step 2: create virtual env and install dependencies
+      - run:
+          name: install dependencies
+          command: |
+            pipenv install
+      # Step 3: run linter and tests
+      - run:
+          name: activate shell
+          command: |
+            pipenv shell
+      - run:
+          name: run tests
+          command: |
+            python3 manage.py test
+      - slack/notify:
+          branch_pattern: develop
+          channel: project-hr
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          branch_pattern: develop
+          channel: project-hr
+          event: pass
+          template: basic_fail_1
+
+workflows:
+  deploy_and_notify:
+    jobs:
+      - build:
+          context: slack-secrets
