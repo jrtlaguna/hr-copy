@@ -6,7 +6,6 @@ jobs:
     working_directory: ~/app
     docker:
       - image: circleci/python:3.8
-
     steps:
       # Step 1: obtain repo from GitHub
       - checkout
@@ -25,12 +24,6 @@ jobs:
           channel: project-hr
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          branch_pattern: develop
-          channel: project-hr
-          event: pass
-          template: basic_fail_1
-
 workflows:
   deploy_and_notify:
     jobs:
