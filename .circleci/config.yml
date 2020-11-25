@@ -3,7 +3,7 @@ orbs:
   slack: circleci/slack@4.1.2
 jobs:
   build:
-    working_directory: ~/app
+    working_directory: ~/repo
     docker:
       - image: circleci/python:3.8
     steps:
@@ -21,10 +21,12 @@ jobs:
             pipenv shell
             python3 manage.py test
       - slack/notify:
-          branch_pattern: develop
-          channel: project-hr
           event: fail
           template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_fail_1
+        
 workflows:
   deploy_and_notify:
     jobs:
