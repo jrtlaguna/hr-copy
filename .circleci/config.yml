@@ -10,6 +10,7 @@ jobs:
         environment:
           PIPENV_VENV_IN_PROJECT: true
           DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
+          POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       # Step 1: obtain repo from GitHub
       - checkout
