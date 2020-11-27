@@ -11,7 +11,7 @@ jobs:
           PIPENV_VENV_IN_PROJECT: true
           PG_HOST: localhost
           PG_DB:   circle_test
-          PG_USER: postgres
+          PG_USER: mugna_hr
           POSTGRES_HOST_AUTH_METHOD: trust
     environment:
       - DATABASE_URL: "postgres://postgres@localhost:5432/circle_test"
