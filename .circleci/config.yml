@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  slack: circleci/slack@4.1.2
+  slack: circleci/slack@4.1.1
 jobs:
   build:
     working_directory: ~/app
@@ -28,12 +28,13 @@ jobs:
           name: run tests
           command: |
             pipenv run python manage.py test
-      # - slack/notify:
-      #     fail_only: true
-      #     template: basic_fail_1
-      - slack/status:
-          fail_only: false
-
+      - slack/notify:
+          template: success_tagged_deploy_1
+          event: pass
+      - slack/notify:
+          event: fail
+          mentions: '@channel'
+          template: basic_fail_1
 workflows:
   deploy_and_notify:
     jobs:
