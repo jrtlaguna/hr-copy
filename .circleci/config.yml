@@ -29,11 +29,11 @@ jobs:
           command: |
             pipenv run python manage.py test
       - slack/notify:
-          event: pass
           template: success_tagged_deploy_1
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+          event: always
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 workflows:
   deploy_and_notify:
     jobs:
