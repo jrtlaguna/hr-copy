@@ -6,9 +6,9 @@ jobs:
     working_directory: ~/app
     docker:
       - image: circleci/python:3.8
-      auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+        auth:
+            username: mydockerhub-user
+            password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
         environment:
           PIPENV_VENV_IN_PROJECT: true
           DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
@@ -19,6 +19,13 @@ jobs:
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: circle_test
+      - image: circleci/postgres:11-postgis
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+          PG_HOST: localhost
+          PG_DB:   circle_test
+          PG_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       # Step 1: obtain repo from GitHub
       - checkout
