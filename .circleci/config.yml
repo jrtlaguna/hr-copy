@@ -15,17 +15,10 @@ jobs:
       - image: circleci/postgres:9.6.2 # an example of how to specify a service container
         auth:
           username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+          password: $DOCKERHUB_PASSWORD
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: circle_test
-      - image: circleci/postgres:11-postgis
-        environment:
-          PIPENV_VENV_IN_PROJECT: true
-          PG_HOST: localhost
-          PG_DB:   circle_test
-          PG_USER: postgres
-          POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       # Step 1: obtain repo from GitHub
       - checkout
