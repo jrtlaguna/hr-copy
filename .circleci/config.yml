@@ -29,13 +29,22 @@ jobs:
           command: |
             pipenv run python manage.py test
       - slack/notify:
-          event: fail
-          template: basic_fail_1
-      # When there is a successful deployment, send a notification with a different template.
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-        
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always
 workflows:
   deploy_and_notify:
     jobs:
