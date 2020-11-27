@@ -6,6 +6,7 @@ jobs:
     working_directory: ~/app
     docker:
       - image: circleci/python:3.8
+      - image: circleci/postgres:11-postgis
         environment:
           PIPENV_VENV_IN_PROJECT: true
           PG_HOST: localhost
