@@ -3,8 +3,12 @@ orbs:
   slack: circleci/slack@4.1.2
 jobs:
   build:
+    working_directory: ~/app
     docker:
       - image: circleci/python:3.8
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+          DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
     steps:
       # Step 1: obtain repo from GitHub
       - checkout
@@ -17,8 +21,12 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv shell
-            python3 manage.py test
+            pipenv run python manage.py test
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: tr1
       - slack/notify:
           event: fail
           template: basic_fail_1
