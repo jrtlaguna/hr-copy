@@ -11,7 +11,7 @@ jobs:
           PIPENV_VENV_IN_PROJECT: true
           PG_HOST: localhost
           PG_DB:   circle_test
-          PG_USER: mugna_hr
+          PG_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       # Step 1: obtain repo from GitHub
