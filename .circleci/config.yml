@@ -9,7 +9,7 @@ jobs:
       - image: circleci/postgres:11-postgis
         environment:
           PIPENV_VENV_IN_PROJECT: true
-          DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
+          DATABASE_URL: postgresql://mugna_hr:mugna_hr@localhost:5432/mugna_hr
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       # Step 1: obtain repo from GitHub
