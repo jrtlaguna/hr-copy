@@ -11,7 +11,7 @@ jobs:
           username: mugna_hr
           password: $DOCKERHUB_PASSWORD
         environment:
-          DATABASE_URL: postgresql://root@localhost/mugna_hr_test/
+          DATABASE_URL: postgresql://mugna_hr@localhost/mugna_hr_test/
     steps:
       - checkout
       - run:
