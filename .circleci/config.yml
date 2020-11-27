@@ -8,7 +8,7 @@ jobs:
       - image: circleci/python:3.8
       - image: circleci/postgres:11-postgis
         environment:
-          # PIPENV_VENV_IN_PROJECT: true
+          PIPENV_VENV_IN_PROJECT: true
           PG_HOST: localhost
           PG_DB:   circle_test
           PG_USER: postgres
@@ -29,22 +29,11 @@ jobs:
           command: |
             pipenv run python manage.py test
       - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 workflows:
   deploy_and_notify:
     jobs:
