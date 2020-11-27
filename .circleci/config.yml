@@ -28,20 +28,17 @@ jobs:
           name: run tests
           command: |
             pipenv run python manage.py test
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
-          destination: tr1
       - slack/notify:
           event: fail
           template: basic_fail_1
+      # When there is a successful deployment, send a notification with a different template.
       - slack/notify:
           event: pass
-          template: basic_fail_1
+          template: success_tagged_deploy_1
         
 workflows:
   deploy_and_notify:
     jobs:
       - build:
-          context: slack-secrets
+          context: 
+            - slack-secrets
